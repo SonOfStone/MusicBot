@@ -7,7 +7,8 @@ var songQueue = []
 //api keys
 var keys = {}
 //autoplay flag
-var autoplay = false
+var autoPlayFlag = false
+var lastSong = {}
 
 client.on("ready", () => {
 	client.user.setActivity("Online!");
@@ -53,6 +54,8 @@ function processCommand(receivedMessage){
 		stopCommand(arguments, receivedMessage)
 	}else if(primaryCommand == "autoplay"){
 		autoPlayCommand(arguments, receivedMessage)
+	}else if(primaryCommand == "queue"){
+		queueCommand(arguments, receivedMessage)
 	}else{
 		receivedMessage.channel.send("Unknown Command")
 	}
@@ -93,15 +96,19 @@ function play(connection, receivedMessage){
 	broadcast = client.createVoiceBroadcast();
 	broadcast.playStream(stream, streamOptions)
 	const dispatcher = connection.playBroadcast(broadcast)
-	var lastSong = songQueue.shift();
+	lastSong = songQueue.shift();
+	receivedMessage.channel.send(lastSong)
+	if(autoPlayFlag){
+		//trying to find next song
+		console.log("finding next song")
+		autoPlay(lastSong, receivedMessage)
+	}
 	broadcast.on("end", () =>{
 		broadcast.destroy()
-		})
+	})
 	dispatcher.on("end", () =>{
 		if(songQueue[0]){
 			play(connection, receivedMessage);
-		// }else if(autoplay){
-			// autoPlayCommand(lastSong)
 		}else{
 			connection.disconnect();
 		}
@@ -120,30 +127,63 @@ function resumeCommand(arguments, receivedMessage){
 
 //skips current song
 function skipCommand(arguments, receivedMessage){
+	if(autoPlayFlag){
+		//trying to find next song
+		autoPlay(lastSong, receivedMessage)
+	}
 	broadcast.destroy()
 }
 
 //ends entire queue
 function stopCommand(arguments, receivedMessage){
 	songQueue = []
+	autoPlayFlag = false
 	broadcast.destroy()
 }
 
 //plays related song
 function autoPlayCommand(arguments, receivedMessage){
 	playCommand(arguments, receivedMessage)
+	autoPlayFlag = true
 	var videoId = arguments[0].split("?v=")[1]
 	var url = "https://www.googleapis.com/youtube/v3/search?part=snippet&relatedToVideoId=" + videoId + "&type=video&key=" + keys["Api_key"]
-	var apiCallResponse = httpGetAsync(url, handleResponse, receivedMessage)
+	var apiCallResponse = httpGetAsync(url, handleResponse1, receivedMessage)
+}
+
+function queueCommand(arguments, receivedMessage){
+	var outputStr = ""
+	for(var i = 0; i < songQueue.length; i++){
+		outputStr += songQueue[i] + "\n"
+	}
+	if(outputStr==""){
+		outputStr = "No songs in queue."
+	}
+	receivedMessage.channel.send(outputStr)
+}
+
+function autoPlay(url, receivedMessage){
+	autoPlayFlag = true
+	var videoId = arguments[0].split("?v=")[1]
+	var url = "https://www.googleapis.com/youtube/v3/search?part=snippet&relatedToVideoId=" + videoId + "&type=video&key=" + keys["Api_key"]
+	var apiCallResponse = httpGetAsync(url, handleResponse2, receivedMessage)
 }
 
 //takes in youtube api output and sends play command for next song
-function handleResponse(response, receivedMessage){
+function handleResponse1(response, receivedMessage){
 	var json = JSON.parse(response);
 	nextVideoId = json["items"][0]["id"]["videoId"]
 	var nextUrl = "https://www.youtube.com/watch?v=" + nextVideoId
-	var args = [nextUrl]
-	playCommand(args, receivedMessage)
+	var args = []
+	// songQueue.push(nextUrl)
+}
+
+function handleResponse2(response, receivedMessage){
+	var json = JSON.parse(response);
+	nextVideoId = json["items"][0]["id"]["videoId"]
+	var nextUrl = "https://www.youtube.com/watch?v=" + nextVideoId
+	var args = []
+	songQueue.shift()
+	songQueue.push(nextUrl)
 }
 
 //get asynchronous data
@@ -153,6 +193,7 @@ function httpGetAsync(theUrl, callback, receivedMessage){
 	xmlHttp.responseType = "json"
 	xmlHttp.onreadystatechange = function() { 
 		if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+			// console.log("we made it")
 			callback(xmlHttp.responseText, receivedMessage)
 	}
 	xmlHttp.open("GET", theUrl, true) // true for asynchronous 
