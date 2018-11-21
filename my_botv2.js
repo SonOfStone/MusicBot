@@ -6,6 +6,8 @@ const client = new Discord.Client()
 var songQueue = []
 //api keys
 var keys = {}
+//autoplay flag
+var autoplay = false
 
 client.on("ready", () => {
 	client.user.setActivity("Online!");
@@ -49,6 +51,8 @@ function processCommand(receivedMessage){
 		skipCommand(arguments, receivedMessage)
 	}else if(primaryCommand == "stop"){
 		stopCommand(arguments, receivedMessage)
+	}else if(primaryCommand == "autoplay"){
+		autoPlayCommand(arguments, receivedMessage)
 	}else{
 		receivedMessage.channel.send("Unknown Command")
 	}
@@ -89,13 +93,15 @@ function play(connection, receivedMessage){
 	broadcast = client.createVoiceBroadcast();
 	broadcast.playStream(stream, streamOptions)
 	const dispatcher = connection.playBroadcast(broadcast)
-	songQueue.shift();
+	var lastSong = songQueue.shift();
 	broadcast.on("end", () =>{
 		broadcast.destroy()
 		})
 	dispatcher.on("end", () =>{
 		if(songQueue[0]){
 			play(connection, receivedMessage);
+		// }else if(autoplay){
+			// autoPlayCommand(lastSong)
 		}else{
 			connection.disconnect();
 		}
@@ -123,17 +129,45 @@ function stopCommand(arguments, receivedMessage){
 	broadcast.destroy()
 }
 
+//plays related song
+function autoPlayCommand(arguments, receivedMessage){
+	playCommand(arguments, receivedMessage)
+	var videoId = arguments[0].split("?v=")[1]
+	var url = "https://www.googleapis.com/youtube/v3/search?part=snippet&relatedToVideoId=" + videoId + "&type=video&key=" + keys["Api_key"]
+	var apiCallResponse = httpGetAsync(url, handleResponse, receivedMessage)
+}
+
+//takes in youtube api output and sends play command for next song
+function handleResponse(response, receivedMessage){
+	var json = JSON.parse(response);
+	nextVideoId = json["items"][0]["id"]["videoId"]
+	var nextUrl = "https://www.youtube.com/watch?v=" + nextVideoId
+	var args = [nextUrl]
+	playCommand(args, receivedMessage)
+}
+
+//get asynchronous data
+function httpGetAsync(theUrl, callback, receivedMessage){
+	var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest
+	var xmlHttp = new XMLHttpRequest()
+	xmlHttp.responseType = "json"
+	xmlHttp.onreadystatechange = function() { 
+		if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+			callback(xmlHttp.responseText, receivedMessage)
+	}
+	xmlHttp.open("GET", theUrl, true) // true for asynchronous 
+	xmlHttp.send(null)
+}
+
 //grab keys from file
 const fs = require("fs")
 fs.readFile("keys.txt", "utf-8", (err, data) => {
 	if(err) throw err
 	lines = data.split("\n")
 	for(var line = 0; line < lines.length; line++){
-		console.log(lines[line])
 		splitline = lines[line].split(":")
 		keys[splitline[0]]=splitline[1]
 	}
-	console.log(keys["discord_bot_token"])
 	bot_secret_token = keys["discord_bot_token"]
 	client.login(bot_secret_token)
 })
