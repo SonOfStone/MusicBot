@@ -21,7 +21,7 @@ client.on('message', (receivedMessage) => {
 		// prevent bot from responding to itself
 		return
 	}
-	if (receivedMessage.content.startsWith("!!!")){
+	if (receivedMessage.content.startsWith(";")){
 		processCommand(receivedMessage)
 	}
 })
@@ -29,19 +29,23 @@ client.on('message', (receivedMessage) => {
 //function to process incoming command
 function processCommand(receivedMessage){
 	// remove leading "!!!"
-	let fullCommand = receivedMessage.content.substr(3)
+	let fullCommand = receivedMessage.content.substr(1)
 	// split command into parts
 	let splitCommand = fullCommand.split(" ")
 	// grab main command
-	let primaryCommand = splitCommand[0]
+	let primaryCommand = splitCommand[0].toLowerCase()
 	// grab remaining arguments
 	let arguments = splitCommand.slice(1)
 	
 	console.log("Command received: " + primaryCommand)
 	console.log("Arguments: " + arguments)
 	
+	if(arguments.length > 0 && arguments[0]=="help"){
+		helpCommand([primaryCommand], receivedMessage)
+	}
+	
 	// redirect commands to other functions
-	if(primaryCommand == "help"){
+	else if(primaryCommand == "help"){
 		helpCommand(arguments, receivedMessage)
 	}else if(primaryCommand == "play"){
 		playCommand(arguments, receivedMessage)
@@ -65,7 +69,23 @@ function processCommand(receivedMessage){
 //help command function
 function helpCommand(arguments, receivedMessage){
 	if(arguments.length > 0){
-		receivedMessage.channel.send("It looks like you might need help with " + arguments)
+		if(arguments[0] == "play"){
+			receivedMessage.channel.send("Play adds a song to the queue must be supplied with a link\nPlay usage: '!!!play https://www.youtube.com/watch?v=O7y9aMIJG00'")
+		}else if(arguments[0] == "pause"){
+			receivedMessage.channel.send("Pause freezes the song currently playing\nPause usage: '!!!pause'")
+		}else if(arguments[0] == "resume"){
+			receivedMessage.channel.send("Resume unpauses the song if paused\nResume usage: '!!!resume'")
+		}else if(arguments[0] == "skip"){
+			receivedMessage.channel.send("Skip plays the next song in queue\nSkip usage: '!!!skip'")
+		}else if(arguments[0] == "stop"){
+			receivedMessage.channel.send("Stop makes the bot leave the channel and empty the queue\nStop usage: '!!!stop'")
+		}else if(arguments[0] == "autoplay"){
+			receivedMessage.channel.send("Autoplay plays related songs to the previous song, must be supplied with the first link\nAutoplay usage: '!!!autoplay https://www.youtube.com/watch?v=O7y9aMIJG00'")
+		}else if(arguments[0] == "queue"){
+			receivedMessage.channel.send("Queue lists all the songs in the queue.\nQueue usage: '!!!queue'")
+		}
+	}else if(arguments.length == 0){
+		receivedMessage.channel.send("!!!help, !!!play, !!!pause, !!!resume, !!!skip, !!!stop, !!!autoplay, !!!queue\nOr type in '!!!help play' for info on the play command")
 	} else {
 		receivedMessage.channel.send("I'm not sure what you need help with.")
 	}
@@ -92,7 +112,7 @@ function playCommand(arguments, receivedMessage){
 function play(connection, receivedMessage){
 	console.log("starting play function")
 	const ytdl = require('ytdl-core')
-	const streamOptions = { seek: 0, volume: .08 }
+	const streamOptions = { seek: 0, volume: .06 }
 	const stream = ytdl(songQueue[0], {filter: "audioonly"})
 	broadcast = client.createVoiceBroadcast();
 	broadcast.playStream(stream, streamOptions)
