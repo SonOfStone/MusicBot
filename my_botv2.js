@@ -9,6 +9,7 @@ var keys = {}
 //autoplay flag
 var autoPlayFlag = false
 var lastSong = {}
+var songQueueIds = {}
 
 client.on("ready", () => {
 	client.user.setActivity("Online!");
@@ -98,7 +99,7 @@ function play(connection, receivedMessage){
 	const dispatcher = connection.playBroadcast(broadcast)
 	lastSong = songQueue.shift();
 	receivedMessage.channel.send(lastSong)
-	if(autoPlayFlag){
+	if(autoPlayFlag && songQueue.length==0){
 		//trying to find next song
 		console.log("finding next song")
 		autoPlay(lastSong, receivedMessage)
@@ -127,27 +128,26 @@ function resumeCommand(arguments, receivedMessage){
 
 //skips current song
 function skipCommand(arguments, receivedMessage){
-	if(autoPlayFlag){
-		//trying to find next song
-		autoPlay(lastSong, receivedMessage)
-	}
 	broadcast.destroy()
 }
 
 //ends entire queue
 function stopCommand(arguments, receivedMessage){
-	songQueue = []
-	autoPlayFlag = false
-	broadcast.destroy()
+	if(arguments.length == 0){
+		songQueueIds = {}
+		songQueue = []
+		autoPlayFlag = false
+		broadcast.destroy()
+	}else if(arguments[0] = "autoplay"){
+		songQueueIds = {}
+		autoPlayFlag = false
+	}
 }
 
 //plays related song
 function autoPlayCommand(arguments, receivedMessage){
 	playCommand(arguments, receivedMessage)
 	autoPlayFlag = true
-	var videoId = arguments[0].split("?v=")[1]
-	var url = "https://www.googleapis.com/youtube/v3/search?part=snippet&relatedToVideoId=" + videoId + "&type=video&key=" + keys["Api_key"]
-	var apiCallResponse = httpGetAsync(url, handleResponse1, receivedMessage)
 }
 
 function queueCommand(arguments, receivedMessage){
@@ -169,20 +169,31 @@ function autoPlay(url, receivedMessage){
 }
 
 //takes in youtube api output and sends play command for next song
-function handleResponse1(response, receivedMessage){
-	var json = JSON.parse(response);
-	nextVideoId = json["items"][0]["id"]["videoId"]
-	var nextUrl = "https://www.youtube.com/watch?v=" + nextVideoId
-	var args = []
-	// songQueue.push(nextUrl)
-}
-
 function handleResponse2(response, receivedMessage){
 	var json = JSON.parse(response);
-	nextVideoId = json["items"][0]["id"]["videoId"]
+	for(var i=0; i < songQueue.length; i++){
+		var videoId = songQueue[i].split("?v=")[1]
+		songQueueIds[videoId] = songQueue[i]
+	}
+	
+	var nextVideoId = ""
+	var notFound = true
+	var counter = 0
+	while(notFound){
+		var nextVideoId = json["items"][counter]["id"]["videoId"]
+		console.log(nextVideoId)
+		console.log(songQueueIds)
+		if(songQueueIds[nextVideoId] == null){
+			console.log("found empty element\n\n")
+			notFound = false
+		}else{
+			console.log("trying again \n")
+		}
+		counter ++
+	}
 	var nextUrl = "https://www.youtube.com/watch?v=" + nextVideoId
-	var args = []
-	songQueue.shift()
+	songQueueIds[nextVideoId] = nextUrl
+	console.log("WE ARE PLAYING NEXT " + nextUrl)
 	songQueue.push(nextUrl)
 }
 
