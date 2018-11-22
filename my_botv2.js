@@ -98,7 +98,7 @@ function play(connection, receivedMessage){
 	broadcast.playStream(stream, streamOptions)
 	const dispatcher = connection.playBroadcast(broadcast)
 	lastSong = songQueue.shift();
-	receivedMessage.channel.send(lastSong)
+	getVideoInfo(lastSong, receivedMessage)
 	if(autoPlayFlag && songQueue.length==0){
 		//trying to find next song
 		console.log("finding next song")
@@ -151,25 +151,82 @@ function autoPlayCommand(arguments, receivedMessage){
 }
 
 function queueCommand(arguments, receivedMessage){
-	var outputStr = ""
 	for(var i = 0; i < songQueue.length; i++){
-		outputStr += songQueue[i] + "\n"
+		getVideoInfo(songQueue[i], receivedMessage)
 	}
-	if(outputStr==""){
+	if(songQueue.length == 0){
 		outputStr = "No songs in queue."
+		receivedMessage.channel.send(outputStr)
 	}
-	receivedMessage.channel.send(outputStr)
 }
 
-function autoPlay(url, receivedMessage){
+//calls api to get related video
+function autoPlay(videoUrl, receivedMessage){
 	autoPlayFlag = true
-	var videoId = arguments[0].split("?v=")[1]
-	var url = "https://www.googleapis.com/youtube/v3/search?part=snippet&relatedToVideoId=" + videoId + "&type=video&key=" + keys["Api_key"]
-	var apiCallResponse = httpGetAsync(url, handleResponse2, receivedMessage)
+	var videoId = videoUrl.split("?v=")[1]
+	var apiUrl = "https://www.googleapis.com/youtube/v3/search?part=snippet&relatedToVideoId=" + videoId + "&type=video&key=" + keys["Api_key"]
+	var apiCallResponse = httpGetAsync(apiUrl, autoPlayHandler, receivedMessage)
 }
 
-//takes in youtube api output and sends play command for next song
-function handleResponse2(response, receivedMessage){
+//calls api to get video info
+function getVideoInfo(videoUrl, receivedMessage){
+	var videoId = videoUrl.split("?v=")[1]
+	var apiUrl = "https://www.googleapis.com/youtube/v3/videos?id=" + videoId + "&fields=items(id,snippet(title,description),contentDetails)&part=snippet,contentDetails&key=" + keys["Api_key"]
+	console.log(apiUrl)
+	var apiCallResponse = httpGetAsync(apiUrl, getVideoInfoHandler, receivedMessage)
+}
+
+// takes in youtube api output for video title and length
+function getVideoInfoHandler(response, receivedMessage){
+	var json = JSON.parse(response)
+	var title = json["items"][0]["snippet"]["title"]
+	var titleCharLimit = 45
+	var url = "https://www.youtube.com/watch?v=" + json["items"][0]["id"]
+	if(title.length > titleCharLimit){
+		title = title.substr(0, titleCharLimit)
+		title += "..."
+	}
+	title = "[" + title + "]" + "(https://www.youtube.com/watch?v=" + json["items"][0]["id"] + ")"
+	
+	var duration = json["items"][0]["contentDetails"]["duration"]
+	duration = convertTime(duration)
+	
+	var description = json["items"][0]["snippet"]["description"]
+	var charLimit = 150
+	description = description.substr(0,charLimit)+"..."
+	//I did not want description at this time so empty string
+	description = ""
+	
+	var outputStr = "Playing " + title + "   " + duration + "\n" + description
+	const embed = new Discord.RichEmbed()
+		.setColor(0xFF0000)
+		.setDescription(outputStr)
+	receivedMessage.channel.send(embed)
+}
+
+//function to turn youtube api time into better format
+function convertTime(inputStr){
+	var reptms = /^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$/;
+	var hours = 0, minutes = 0, seconds = 0, totalseconds;
+
+	if (reptms.test(inputStr)) {
+		var matches = reptms.exec(inputStr);
+		if (matches[1]) hours = Number(matches[1]);
+		if (matches[2]) minutes = Number(matches[2]);
+		if (matches[3]) seconds = Number(matches[3]);
+		totalseconds = hours * 3600  + minutes * 60 + seconds;
+	}
+	
+	if(hours==0){
+		return(String(minutes).padStart(2,0) + ":" + String(seconds).padStart(2,0))
+	}else{
+		return(String(hours).padStart(2,0) + ":" + String(minutes).padStart(2,0) + ":" + String(seconds).padStart(2,0))
+	}
+}
+
+//takes in youtube api output for related songs checks for repeats
+//and sends play command for next song
+function autoPlayHandler(response, receivedMessage){
 	var json = JSON.parse(response);
 	for(var i=0; i < songQueue.length; i++){
 		var videoId = songQueue[i].split("?v=")[1]
