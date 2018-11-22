@@ -1,3 +1,13 @@
+// NEED TO IMPLEMENT:
+//make bot not global
+
+// WANT TO IMPLEMENT:
+//timer to see song progress
+//add games
+//add afk handler
+//change queue output
+//output append info on playCommand
+
 //initialize bot
 const Discord = require('discord.js')
 const client = new Discord.Client()
@@ -8,11 +18,14 @@ var songQueue = []
 var keys = {}
 //autoplay flag
 var autoPlayFlag = false
-var lastSong = {}
+var lastSong = null
 var songQueueIds = {}
+var prefix = ";"
+var broadcast = null
+
 
 client.on("ready", () => {
-	client.user.setActivity("Online!");
+	client.user.setActivity("BOPS! | ;help");
 	console.log('I am ready!');
 })
 
@@ -21,7 +34,7 @@ client.on('message', (receivedMessage) => {
 		// prevent bot from responding to itself
 		return
 	}
-	if (receivedMessage.content.startsWith(";")){
+	if (receivedMessage.content.startsWith(prefix)){
 		processCommand(receivedMessage)
 	}
 })
@@ -29,7 +42,7 @@ client.on('message', (receivedMessage) => {
 //function to process incoming command
 function processCommand(receivedMessage){
 	// remove leading "!!!"
-	let fullCommand = receivedMessage.content.substr(1)
+	let fullCommand = receivedMessage.content.substr(prefix.length)
 	// split command into parts
 	let splitCommand = fullCommand.split(" ")
 	// grab main command
@@ -61,6 +74,10 @@ function processCommand(receivedMessage){
 		autoPlayCommand(arguments, receivedMessage)
 	}else if(primaryCommand == "queue"){
 		queueCommand(arguments, receivedMessage)
+	}else if(primaryCommand == "playing"){
+		playingCommand(arguments, receivedMessage)
+	}else if(primaryCommand == "back"){
+		backCommand(arguments, receivedMessage)
 	}else{
 		receivedMessage.channel.send("Unknown Command")
 	}
@@ -70,22 +87,22 @@ function processCommand(receivedMessage){
 function helpCommand(arguments, receivedMessage){
 	if(arguments.length > 0){
 		if(arguments[0] == "play"){
-			receivedMessage.channel.send("Play adds a song to the queue must be supplied with a link\nPlay usage: '!!!play https://www.youtube.com/watch?v=O7y9aMIJG00'")
+			receivedMessage.channel.send("Play adds a song to the queue must be supplied with a link\nPlay usage: '" + prefix + "play https://www.youtube.com/watch?v=O7y9aMIJG00'")
 		}else if(arguments[0] == "pause"){
-			receivedMessage.channel.send("Pause freezes the song currently playing\nPause usage: '!!!pause'")
+			receivedMessage.channel.send("Pause freezes the song currently playing\nPause usage: '" + prefix + "pause'")
 		}else if(arguments[0] == "resume"){
-			receivedMessage.channel.send("Resume unpauses the song if paused\nResume usage: '!!!resume'")
+			receivedMessage.channel.send("Resume unpauses the song if paused\nResume usage: '" + prefix + "resume'")
 		}else if(arguments[0] == "skip"){
-			receivedMessage.channel.send("Skip plays the next song in queue\nSkip usage: '!!!skip'")
+			receivedMessage.channel.send("Skip plays the next song in queue\nSkip usage: '" + prefix + "skip'")
 		}else if(arguments[0] == "stop"){
-			receivedMessage.channel.send("Stop makes the bot leave the channel and empty the queue\nStop usage: '!!!stop'")
+			receivedMessage.channel.send("Stop makes the bot leave the channel and empty the queue\nStop usage: '" + prefix + "stop'")
 		}else if(arguments[0] == "autoplay"){
-			receivedMessage.channel.send("Autoplay plays related songs to the previous song, must be supplied with the first link\nAutoplay usage: '!!!autoplay https://www.youtube.com/watch?v=O7y9aMIJG00'")
+			receivedMessage.channel.send("Autoplay plays related songs to the previous song. If supplied with no arguments Autoplay is toggled. If given a link it will play that song.\nAutoplay usage: '" + prefix + "autoplay https://www.youtube.com/watch?v=O7y9aMIJG00'\nor '" + prefix + "autoplay'")
 		}else if(arguments[0] == "queue"){
-			receivedMessage.channel.send("Queue lists all the songs in the queue.\nQueue usage: '!!!queue'")
+			receivedMessage.channel.send("Queue lists all the songs in the queue.\nQueue usage: '" + prefix + "queue'")
 		}
 	}else if(arguments.length == 0){
-		receivedMessage.channel.send("!!!help, !!!play, !!!pause, !!!resume, !!!skip, !!!stop, !!!autoplay, !!!queue\nOr type in '!!!help play' for info on the play command")
+		receivedMessage.channel.send("" + prefix + "help, " + prefix + "play, " + prefix + "pause, " + prefix + "resume, " + prefix + "skip, " + prefix + "stop, " + prefix + "autoplay, " + prefix + "queue\nOr type in '" + prefix + "help play' for info on the play command")
 	} else {
 		receivedMessage.channel.send("I'm not sure what you need help with.")
 	}
@@ -101,16 +118,26 @@ function playCommand(arguments, receivedMessage){
 		receivedMessage.channel.send("You must be in a voice channel")
 		return
 	}
-	console.log("pushing " + arguments[0])
-	songQueue.push(arguments[0])
-	if(!receivedMessage.guild.voiceConnection) receivedMessage.member.voiceChannel.join().then(function(connection){
-		play(connection, receivedMessage)
-	})
-	.catch(console.error)
+	//check if link is good
+	var youtubeRegex = /^(https?\:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+$/
+	if(arguments[0].match(youtubeRegex)){
+		console.log("pushing " + arguments[0])
+		songQueue.push(arguments[0])
+		var videoId = arguments[0].split("?v=")[1]
+		songQueueIds[videoId] = arguments[0]
+		//display queue if bigger than 1
+		if(songQueue.length > 1)queueCommand(arguments, receivedMessage)
+		if(!receivedMessage.guild.voiceConnection) receivedMessage.member.voiceChannel.join().then(function(connection){
+			play(connection, receivedMessage)
+		})
+		.catch(console.error)
+	}else{
+		receivedMessage.channel.send("Could not find a video with your link")
+	}
 }
 
 function play(connection, receivedMessage){
-	console.log("starting play function")
+	console.log("Starting play function\n")
 	const ytdl = require('ytdl-core')
 	const streamOptions = { seek: 0, volume: .06 }
 	const stream = ytdl(songQueue[0], {filter: "audioonly"})
@@ -131,6 +158,7 @@ function play(connection, receivedMessage){
 		if(songQueue[0]){
 			play(connection, receivedMessage);
 		}else{
+			lastSong = null
 			connection.disconnect();
 		}
 	})
@@ -138,17 +166,17 @@ function play(connection, receivedMessage){
 
 //pauses current music
 function pauseCommand(arguments, receivedMessage){
-	broadcast.pause()
+	if(broadcast)broadcast.pause()
 }
 
 //resumes current music
 function resumeCommand(arguments, receivedMessage){
-	broadcast.resume()
+	if(broadcast)broadcast.resume()
 }
 
 //skips current song
 function skipCommand(arguments, receivedMessage){
-	broadcast.destroy()
+	if(broadcast)broadcast.destroy()
 }
 
 //ends entire queue
@@ -157,7 +185,7 @@ function stopCommand(arguments, receivedMessage){
 		songQueueIds = {}
 		songQueue = []
 		autoPlayFlag = false
-		broadcast.destroy()
+		if(broadcast)broadcast.destroy()
 	}else if(arguments[0] = "autoplay"){
 		songQueueIds = {}
 		autoPlayFlag = false
@@ -166,19 +194,68 @@ function stopCommand(arguments, receivedMessage){
 
 //plays related song
 function autoPlayCommand(arguments, receivedMessage){
-	playCommand(arguments, receivedMessage)
-	autoPlayFlag = true
+	if(arguments.length==1){
+		playCommand(arguments, receivedMessage)
+		autoPlayFlag = true
+	}else if(arguments.length==0){
+		autoPlayFlag = !autoPlayFlag
+		if(autoPlayFlag){
+			receivedMessage.channel.send("Autoplay is on.")
+			if(autoPlayFlag && songQueue.length == 0 && lastSong != null){
+				console.log(lastSong)
+				//trying to find next song
+				console.log("finding next song")
+				autoPlay(lastSong, receivedMessage)
+			}
+		}else{
+			receivedMessage.channel.send("Autoplay is off.")
+		}
+		
+	}
 }
 
+//displays songs in the queue
 function queueCommand(arguments, receivedMessage){
 	for(var i = 0; i < songQueue.length; i++){
-		getVideoInfo(songQueue[i], receivedMessage)
+		getVideoInfo(songQueue[i], receivedMessage, "Queued ")
 	}
 	if(songQueue.length == 0){
 		outputStr = "No songs in queue."
 		receivedMessage.channel.send(outputStr)
 	}
 }
+
+//displays the info for song currently playing
+function playingCommand(arguments, receivedMessage){
+	getVideoInfo(lastSong, receivedMessage)
+}
+
+//function to reset youtube suggestion
+function backCommand(arguments, receivedMessage){
+	console.log(songQueue)
+	var listOfIds = Object.keys(songQueueIds)
+	if(listOfIds.length>=3) var backSongLink = (songQueueIds[listOfIds[listOfIds.length-3]])
+	console.log(backSongLink)
+	if(backSongLink != null){
+		// autoPlay(backSongLink, receivedMessage)
+		// console.log("autplay called\n")
+		console.log(songQueue)
+		songQueue.shift()
+		songQueue.unshift(backSongLink)
+		console.log(songQueue)
+	}else{
+		receivedMessage.channel.send("No song to go back to.")
+	}
+	console.log(songQueue)
+	if(broadcast) broadcast.destroy()
+}
+
+
+
+//HELPER FUNCTIONS///////////////////////////////
+
+
+
 
 //calls api to get related video
 function autoPlay(videoUrl, receivedMessage){
@@ -189,15 +266,19 @@ function autoPlay(videoUrl, receivedMessage){
 }
 
 //calls api to get video info
-function getVideoInfo(videoUrl, receivedMessage){
+function getVideoInfo(videoUrl, receivedMessage, outputStartText){
+	var youtubeRegex = /^(https?\:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+$/
 	var videoId = videoUrl.split("?v=")[1]
-	var apiUrl = "https://www.googleapis.com/youtube/v3/videos?id=" + videoId + "&fields=items(id,snippet(title,description),contentDetails)&part=snippet,contentDetails&key=" + keys["Api_key"]
-	console.log(apiUrl)
-	var apiCallResponse = httpGetAsync(apiUrl, getVideoInfoHandler, receivedMessage)
+	if(videoUrl.match(youtubeRegex)){
+		var apiUrl = "https://www.googleapis.com/youtube/v3/videos?id=" + videoId + "&fields=items(id,snippet(title,description),contentDetails)&part=snippet,contentDetails&key=" + keys["Api_key"]
+		var apiCallResponse = httpGetAsync(apiUrl, getVideoInfoHandler, receivedMessage, outputStartText)
+	}else{
+		receivedMessage.channel.send("Could not find a video.")
+	}
 }
 
 // takes in youtube api output for video title and length
-function getVideoInfoHandler(response, receivedMessage){
+function getVideoInfoHandler(response, receivedMessage, outputStartText){
 	var json = JSON.parse(response)
 	var title = json["items"][0]["snippet"]["title"]
 	var titleCharLimit = 45
@@ -217,7 +298,8 @@ function getVideoInfoHandler(response, receivedMessage){
 	//I did not want description at this time so empty string
 	description = ""
 	
-	var outputStr = "Playing " + title + "   " + duration + "\n" + description
+	if(outputStartText==null) var outputStartText = "Playing "
+	var outputStr = outputStartText + title + "   " + duration + "\n" + description
 	const embed = new Discord.RichEmbed()
 		.setColor(0xFF0000)
 		.setDescription(outputStr)
@@ -272,17 +354,18 @@ function autoPlayHandler(response, receivedMessage){
 	songQueueIds[nextVideoId] = nextUrl
 	console.log("WE ARE PLAYING NEXT " + nextUrl)
 	songQueue.push(nextUrl)
+	queueCommand(arguments, receivedMessage)
 }
 
 //get asynchronous data
-function httpGetAsync(theUrl, callback, receivedMessage){
+function httpGetAsync(theUrl, callback, receivedMessage, outputStartText){
 	var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest
 	var xmlHttp = new XMLHttpRequest()
 	xmlHttp.responseType = "json"
 	xmlHttp.onreadystatechange = function() { 
 		if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
 			// console.log("we made it")
-			callback(xmlHttp.responseText, receivedMessage)
+			callback(xmlHttp.responseText, receivedMessage, outputStartText)
 	}
 	xmlHttp.open("GET", theUrl, true) // true for asynchronous 
 	xmlHttp.send(null)
