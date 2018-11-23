@@ -5,12 +5,14 @@
 //timer to see song progress
 //add games
 //add afk handler
-//perfect back command
+//perfect back command-write broadcast.destroy() in a handler
+//handle queue async requests better
 
 //initialize bot
 const Discord = require('discord.js')
 const client = new Discord.Client()
 
+var servers = {}
 //Queue of songs
 var songQueue = []
 //api keys
@@ -107,10 +109,10 @@ function helpCommand(arguments, receivedMessage){
 		}else if(arguments[0] == "back"){
 			receivedMessage.channel.send("Back replays the previous song and also gives a new suggestion in Autoplay\nQueue usage: '" + prefix + "back'")
 		}else if(arguments[0] == "playnext"){
-			receivedMessage.channel.send("Puts song next in the queue, must be given a link\nQueue usage: '" + prefix + "playnext'")
+			receivedMessage.channel.send("Puts song next in the queue, must be given a link\nQueue usage: '" + prefix + "playnext https://www.youtube.com/watch?v=O7y9aMIJG00'")
 		}
 	}else if(arguments.length == 0){
-		receivedMessage.channel.send(prefix + "help, " + prefix + "play, " + prefix + "pause, " + prefix + "resume, " + prefix + "skip, " + prefix + "stop, " + prefix + "autoplay, " + prefix + "queue, "  + prefix + "playing, "  + prefix + "back\nOr type in '" + prefix + "help <command>' for info on that command")
+		receivedMessage.channel.send(prefix + "help, " + prefix + "play, " + prefix + "pause, " + prefix + "resume, " + prefix + "skip, " + prefix + "stop, " + prefix + "autoplay, " + prefix + "queue, "  + prefix + "playing, "  + prefix + "back, "  + prefix + "playnext\nOr type in '" + prefix + "help <command>' for info on that command")
 	} else {
 		receivedMessage.channel.send("I'm not sure what you need help with.")
 	}
@@ -147,7 +149,7 @@ function playCommand(arguments, receivedMessage){
 function play(connection, receivedMessage){
 	console.log("Starting play function\n")
 	const ytdl = require('ytdl-core')
-	const streamOptions = { seek: 0, volume: .10 }
+	const streamOptions = { seek: 0, volume: .06, quality: "highestaudio"}
 	const stream = ytdl(songQueue[0], {filter: "audioonly"})
 	broadcast = client.createVoiceBroadcast();
 	broadcast.playStream(stream, streamOptions)

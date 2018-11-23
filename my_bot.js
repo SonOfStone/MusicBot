@@ -4,6 +4,8 @@ const client = new Discord.Client()
 
 //Queue of songs
 var songQueue = []
+//api keys
+var keys = {}
 
 client.on("ready", () => {
 	client.user.setActivity("Online!");
@@ -113,5 +115,17 @@ function stopCommand(arguments, receivedMessage){
 	}
 }
 
-bot_secret_token = "NTE0NjgxNTM1OTE2NjcwOTc2.DtaJhw.dFzJKR6qlJiedTwZ61qdhrsqpYg"
-client.login(bot_secret_token)
+//grab keys from file
+const fs = require("fs")
+fs.readFile("keys.txt", "utf-8", (err, data) => {
+	if(err) throw err
+	lines = data.split("\n")
+	for(var line = 0; line < lines.length; line++){
+		console.log(lines[line])
+		splitline = lines[line].split(":")
+		keys[splitline[0]]=splitline[1]
+	}
+	console.log(keys["discord_bot_token"])
+	bot_secret_token = keys["discord_bot_token"]
+	client.login(bot_secret_token)
+})
