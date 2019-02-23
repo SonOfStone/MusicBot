@@ -88,7 +88,7 @@ function processCommand(receivedMessage){
     //misspelled roulette command
     }else if(/^roul/.test(primaryCommand)){
         typoRouletteCommand(arguments, receivedMessage)
-	}else{
+    }else{
 		receivedMessage.channel.send("Unknown Command")
 	}
 }
@@ -309,14 +309,18 @@ function rouletteCommand(arguments, receivedMessage){
     //cooldown in seconds
     if (now - lastCommandUsage > 5 * 1000) {
         const voiceChannel = receivedMessage.member.voiceChannel
-        var members = voiceChannel.members
-        var randomMember = members.random()
-        //this is the afk channel in New PLebs Onlay
-        randomMember.setVoiceChannel('383383758679703575')
-            .then(() => console.log(`Moved ${randomMember.displayName}`))
-            .catch(console.error);
-        receivedMessage.channel.send(`${randomMember.toString()} has lost the roulette!`)
-        lastCommandUsage = now
+        if(voiceChannel !== undefined){
+            var members = voiceChannel.members
+            var randomMember = members.random()
+            //this is the afk channel in New PLebs Onlay
+            randomMember.setVoiceChannel('383383758679703575')
+                .then(() => console.log(`Moved ${randomMember.displayName}`))
+                .catch(console.error);
+            receivedMessage.channel.send(`${randomMember.toString()} has lost the roulette!`)
+            lastCommandUsage = now
+        }else{
+            receivedMessage.channel.send("You are not in a voice channel")
+        }
     }else{
         receivedMessage.channel.send("The roulette command is on cooldown")
     }
@@ -324,10 +328,15 @@ function rouletteCommand(arguments, receivedMessage){
 
 function typoRouletteCommand(arguments, receivedMessage){
     //move user to afk channel
-    receivedMessage.member.setVoiceChannel('383383758679703575')
-        .then(() => console.log(`Moved ${receivedMessage.member.displayName}`))
-        .catch(console.error);
-    receivedMessage.channel.send(`${receivedMessage.member.toString()} has lost the roulette!`)
+    const voiceChannel = receivedMessage.member.voiceChannel
+    if(voiceChannel !== undefined){
+        receivedMessage.member.setVoiceChannel('383383758679703575')
+            .then(() => console.log(`Moved ${receivedMessage.member.displayName}`))
+            .catch(console.error);
+        receivedMessage.channel.send(`${receivedMessage.member.toString()} has lost the roulette!`)
+    }else{
+         receivedMessage.channel.send("You are not in a voice channel")
+    }
 }
 
 
