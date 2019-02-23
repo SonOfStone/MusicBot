@@ -24,6 +24,7 @@ var songQueueIds = {}
 var prefix = ";"
 var broadcast = null
 var lastSongs = []
+var lastCommandUsage = 0
 
 
 client.on("ready", () => {
@@ -85,7 +86,7 @@ function processCommand(receivedMessage){
     }else if(primaryCommand == "roulette"){
         rouletteCommand(arguments, receivedMessage)
     //misspelled roulette command
-    }else if(/roul/.test(primaryCommand)){
+    }else if(/^roul/.test(primaryCommand)){
         typoRouletteCommand(arguments, receivedMessage)
 	}else{
 		receivedMessage.channel.send("Unknown Command")
@@ -274,6 +275,7 @@ function backCommand(arguments, receivedMessage){
 	// if(broadcast) broadcast.destroy()
 }
 
+//function to add song next in queue
 function playNextCommand(arguments, receivedMessage){
 	if(arguments.length != 1){
 		receivedMessage.channel.send("Please provide a link")
@@ -301,16 +303,23 @@ function playNextCommand(arguments, receivedMessage){
 	}
 }
 
+//function to move random player to afk channel
 function rouletteCommand(arguments, receivedMessage){
-    const voiceChannelId = receivedMessage.member.voiceChannelID
-    const voiceChannel = receivedMessage.member.voiceChannel
-    var members = voiceChannel.members
-    var randomMember = members.random()
-    //this is the afk channel
-    randomMember.setVoiceChannel('383383758679703575')
-        .then(() => console.log(`Moved ${randomMember.displayName}`))
-        .catch(console.error);
-    receivedMessage.channel.send(`${randomMember.displayName} has lost the roulette!`)
+    const now = new Date();
+    //cooldown in seconds
+    if (now - lastCommandUsage > 5 * 1000) {
+        const voiceChannel = receivedMessage.member.voiceChannel
+        var members = voiceChannel.members
+        var randomMember = members.random()
+        //this is the afk channel in New PLebs Onlay
+        randomMember.setVoiceChannel('383383758679703575')
+            .then(() => console.log(`Moved ${randomMember.displayName}`))
+            .catch(console.error);
+        receivedMessage.channel.send(`${randomMember.toString()} has lost the roulette!`)
+        lastCommandUsage = now
+    }else{
+        receivedMessage.channel.send("The roulette command is on cooldown")
+    }
 }
 
 function typoRouletteCommand(arguments, receivedMessage){
@@ -318,13 +327,11 @@ function typoRouletteCommand(arguments, receivedMessage){
     receivedMessage.member.setVoiceChannel('383383758679703575')
         .then(() => console.log(`Moved ${receivedMessage.member.displayName}`))
         .catch(console.error);
-    receivedMessage.channel.send(`${receivedMessage.member.displayName} has lost the roulette!`)
+    receivedMessage.channel.send(`${receivedMessage.member.toString()} has lost the roulette!`)
 }
 
 
 //////////////////////////HELPER FUNCTIONS///////////////////////////////
-
-
 
 
 //calls api to get related video

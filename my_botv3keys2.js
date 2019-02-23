@@ -85,7 +85,7 @@ function processCommand(receivedMessage){
     }else if(primaryCommand == "roulette"){
         rouletteCommand(arguments, receivedMessage)
     //misspelled roulette command
-    }else if(/roul/.test(primaryCommand)){
+    }else if(/^roul/.test(primaryCommand)){
         typoRouletteCommand(arguments, receivedMessage)
     }else{
 		receivedMessage.channel.send("Unknown Command")
