@@ -87,7 +87,7 @@ function processCommand(receivedMessage){
     //misspelled roulette command
     }else if(/roul/.test(primaryCommand)){
         typoRouletteCommand(arguments, receivedMessage)
-	}else{
+    }else{
 		receivedMessage.channel.send("Unknown Command")
 	}
 }
@@ -445,7 +445,7 @@ function httpGetAsync(theUrl, callback, receivedMessage, outputStartText){
 
 //grab keys from file
 const fs = require("fs")
-fs.readFile("keys.txt", "utf-8", (err, data) => {
+fs.readFile("keys2.txt", "utf-8", (err, data) => {
 	if(err) throw err
 	lines = data.split("\n")
 	for(var line = 0; line < lines.length; line++){

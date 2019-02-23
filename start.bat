@@ -1,1 +1,1 @@
-node my_botv3.js
+nodemon my_botv3.js
