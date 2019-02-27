@@ -32,7 +32,7 @@ client.on("ready", () => {
 	console.log('I am ready!');
 })
 
-client.on('message', (receivedMessage) => {
+client.on("message", (receivedMessage) => {
 	if (receivedMessage.author == client.user){
 		// prevent bot from responding to itself
 		return
@@ -41,6 +41,8 @@ client.on('message', (receivedMessage) => {
 		processCommand(receivedMessage)
 	}
 })
+
+client.on("error", console.error);
 
 //function to process incoming command
 function processCommand(receivedMessage){
@@ -157,7 +159,7 @@ function playCommand(arguments, receivedMessage){
 function play(connection, receivedMessage){
 	console.log("Starting play function\n")
 	const ytdl = require('ytdl-core')
-	const streamOptions = { seek: 0, volume: .06, quality: "highestaudio"}
+	const streamOptions = { seek: 0, volume: .18, quality: "highestaudio"}
 	const stream = ytdl(songQueue[0], {filter: "audioonly"})
 	broadcast = client.createVoiceBroadcast();
 	broadcast.playStream(stream, streamOptions)

@@ -42,6 +42,8 @@ client.on('message', (receivedMessage) => {
 	}
 })
 
+client.on("error", console.error);
+
 //function to process incoming command
 function processCommand(receivedMessage){
 	// remove leading "!!!"
@@ -157,7 +159,7 @@ function playCommand(arguments, receivedMessage){
 function play(connection, receivedMessage){
 	console.log("Starting play function\n")
 	const ytdl = require('ytdl-core')
-	const streamOptions = { seek: 0, volume: .06, quality: "highestaudio"}
+	const streamOptions = { seek: 0, volume: .40, quality: "highestaudio"}
 	const stream = ytdl(songQueue[0], {filter: "audioonly"})
 	broadcast = client.createVoiceBroadcast();
 	broadcast.playStream(stream, streamOptions)
@@ -313,7 +315,7 @@ function rouletteCommand(arguments, receivedMessage){
             var members = voiceChannel.members
             var randomMember = members.random()
             //this is the afk channel in New PLebs Onlay
-            randomMember.setVoiceChannel('383383758679703575')
+            randomMember.setVoiceChannel('536984774510772224')
                 .then(() => console.log(`Moved ${randomMember.displayName}`))
                 .catch(console.error);
             receivedMessage.channel.send(`${randomMember.toString()} has lost the roulette!`)
@@ -330,7 +332,7 @@ function typoRouletteCommand(arguments, receivedMessage){
     //move user to afk channel
     const voiceChannel = receivedMessage.member.voiceChannel
     if(voiceChannel !== undefined){
-        receivedMessage.member.setVoiceChannel('383383758679703575')
+        receivedMessage.member.setVoiceChannel('536984774510772224')
             .then(() => console.log(`Moved ${receivedMessage.member.displayName}`))
             .catch(console.error);
         receivedMessage.channel.send(`${receivedMessage.member.toString()} has lost the roulette!`)
