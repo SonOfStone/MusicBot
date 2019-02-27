@@ -25,6 +25,7 @@ var prefix = ";"
 var broadcast = null
 var lastSongs = []
 var lastCommandUsage = 0
+var scores = null
 
 
 client.on("ready", () => {
@@ -32,7 +33,7 @@ client.on("ready", () => {
 	console.log('I am ready!');
 })
 
-client.on('message', (receivedMessage) => {
+client.on("message", (receivedMessage) => {
 	if (receivedMessage.author == client.user){
 		// prevent bot from responding to itself
 		return
@@ -314,11 +315,13 @@ function rouletteCommand(arguments, receivedMessage){
         if(voiceChannel !== undefined){
             var members = voiceChannel.members
             var randomMember = members.random()
+            incrementScore(randomMember)
             //this is the afk channel in New PLebs Onlay
             randomMember.setVoiceChannel('536984774510772224')
                 .then(() => console.log(`Moved ${randomMember.displayName}`))
                 .catch(console.error);
-            receivedMessage.channel.send(`${randomMember.toString()} has lost the roulette!`)
+            var personal_score = getScore(randomMember)
+            receivedMessage.channel.send(`${randomMember.toString()} has lost the roulette ${personal_score} times!`)
             lastCommandUsage = now
         }else{
             receivedMessage.channel.send("You are not in a voice channel")
@@ -332,18 +335,45 @@ function typoRouletteCommand(arguments, receivedMessage){
     //move user to afk channel
     const voiceChannel = receivedMessage.member.voiceChannel
     if(voiceChannel !== undefined){
+        incrementScore(randomMember)
         receivedMessage.member.setVoiceChannel('536984774510772224')
             .then(() => console.log(`Moved ${receivedMessage.member.displayName}`))
             .catch(console.error);
+        var personal_score = getScore(receivedMessage.member)
         receivedMessage.channel.send(`${receivedMessage.member.toString()} has lost the roulette!`)
     }else{
          receivedMessage.channel.send("You are not in a voice channel")
     }
 }
 
-
 //////////////////////////HELPER FUNCTIONS///////////////////////////////
 
+//imports the scores from json at start
+function importScore(){
+    scores = require("./src/scores.json")
+}
+
+//add 1 to score of user
+function incrementScore(member){
+    var oldScore = scores[member.id]
+    if(oldScore !== undefined){
+        scores[member.id] = oldScore + 1
+    }else{
+        scores[member.id] = 1
+    }
+    var fs = require("fs")
+    //write new scores to file
+    fs.writeFile("src/scores.json", JSON.stringify(scores), function(err){
+        if(err) throw err
+        console.log("complete")
+        }
+    );
+}
+
+//retrieves the score of a member for roulette
+function getScore(member){
+    return scores[member.id]
+}
 
 //calls api to get related video
 function autoPlay(videoUrl, receivedMessage){
@@ -473,3 +503,5 @@ fs.readFile("keys2.txt", "utf-8", (err, data) => {
 	bot_secret_token = keys["discord_bot_token"]
 	client.login(bot_secret_token)
 })
+//import the scores
+importScore()

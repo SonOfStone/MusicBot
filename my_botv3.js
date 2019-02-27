@@ -25,6 +25,7 @@ var prefix = ";"
 var broadcast = null
 var lastSongs = []
 var lastCommandUsage = 0
+var scores = null
 
 
 client.on("ready", () => {
@@ -159,7 +160,7 @@ function playCommand(arguments, receivedMessage){
 function play(connection, receivedMessage){
 	console.log("Starting play function\n")
 	const ytdl = require('ytdl-core')
-	const streamOptions = { seek: 0, volume: .18, quality: "highestaudio"}
+	const streamOptions = { seek: 0, volume: .40, quality: "highestaudio"}
 	const stream = ytdl(songQueue[0], {filter: "audioonly"})
 	broadcast = client.createVoiceBroadcast();
 	broadcast.playStream(stream, streamOptions)
@@ -314,11 +315,13 @@ function rouletteCommand(arguments, receivedMessage){
         if(voiceChannel !== undefined){
             var members = voiceChannel.members
             var randomMember = members.random()
+            incrementScore(randomMember)
             //this is the afk channel in New PLebs Onlay
             randomMember.setVoiceChannel('383383758679703575')
                 .then(() => console.log(`Moved ${randomMember.displayName}`))
                 .catch(console.error);
-            receivedMessage.channel.send(`${randomMember.toString()} has lost the roulette!`)
+            var personal_score = getScore(randomMember)
+            receivedMessage.channel.send(`${randomMember.toString()} has lost the roulette ${personal_score} times!`)
             lastCommandUsage = now
         }else{
             receivedMessage.channel.send("You are not in a voice channel")
@@ -332,9 +335,11 @@ function typoRouletteCommand(arguments, receivedMessage){
     //move user to afk channel
     const voiceChannel = receivedMessage.member.voiceChannel
     if(voiceChannel !== undefined){
+        incrementScore(randomMember)
         receivedMessage.member.setVoiceChannel('383383758679703575')
             .then(() => console.log(`Moved ${receivedMessage.member.displayName}`))
             .catch(console.error);
+        var personal_score = getScore(receivedMessage.member)
         receivedMessage.channel.send(`${receivedMessage.member.toString()} has lost the roulette!`)
     }else{
          receivedMessage.channel.send("You are not in a voice channel")
@@ -344,6 +349,32 @@ function typoRouletteCommand(arguments, receivedMessage){
 
 //////////////////////////HELPER FUNCTIONS///////////////////////////////
 
+//imports the scores from json at start
+function importScore(){
+    scores = require("./src/scores.json")
+}
+
+//add 1 to score of user
+function incrementScore(member){
+    var oldScore = scores[member.id]
+    if(oldScore !== undefined){
+        scores[member.id] = oldScore + 1
+    }else{
+        scores[member.id] = 1
+    }
+    var fs = require("fs")
+    //write new scores to file
+    fs.writeFile("src/scores.json", JSON.stringify(scores), function(err){
+        if(err) throw err
+        console.log("complete")
+        }
+    );
+}
+
+//retrieves the score of a member for roulette
+function getScore(member){
+    return scores[member.id]
+}
 
 //calls api to get related video
 function autoPlay(videoUrl, receivedMessage){
@@ -473,3 +504,5 @@ fs.readFile("keys.txt", "utf-8", (err, data) => {
 	bot_secret_token = keys["discord_bot_token"]
 	client.login(bot_secret_token)
 })
+//import the scores
+importScore()
