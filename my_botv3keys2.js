@@ -5,12 +5,14 @@
 //timer to see song progress
 //add games
 //add afk handler
-//perfect back command
+//perfect back command-write broadcast.destroy() in a handler
+//handle queue async requests better
 
 //initialize bot
 const Discord = require('discord.js')
 const client = new Discord.Client()
 
+var servers = {}
 //Queue of songs
 var songQueue = []
 //api keys
@@ -22,6 +24,8 @@ var songQueueIds = {}
 var prefix = ";"
 var broadcast = null
 var lastSongs = []
+var lastCommandUsage = 0
+var scores = null
 
 
 client.on("ready", () => {
@@ -29,7 +33,7 @@ client.on("ready", () => {
 	console.log('I am ready!');
 })
 
-client.on('message', (receivedMessage) => {
+client.on("message", (receivedMessage) => {
 	if (receivedMessage.author == client.user){
 		// prevent bot from responding to itself
 		return
@@ -38,6 +42,8 @@ client.on('message', (receivedMessage) => {
 		processCommand(receivedMessage)
 	}
 })
+
+client.on("error", console.error);
 
 //function to process incoming command
 function processCommand(receivedMessage){
@@ -80,7 +86,12 @@ function processCommand(receivedMessage){
 		backCommand(arguments, receivedMessage)
 	}else if(primaryCommand == "playnext"){
 		playNextCommand(arguments, receivedMessage)
-	}else{
+    }else if(primaryCommand == "roulette"){
+        rouletteCommand(arguments, receivedMessage)
+    //misspelled roulette command
+    }else if(/^roul/.test(primaryCommand)){
+        typoRouletteCommand(arguments, receivedMessage)
+    }else{
 		receivedMessage.channel.send("Unknown Command")
 	}
 }
@@ -107,10 +118,12 @@ function helpCommand(arguments, receivedMessage){
 		}else if(arguments[0] == "back"){
 			receivedMessage.channel.send("Back replays the previous song and also gives a new suggestion in Autoplay\nQueue usage: '" + prefix + "back'")
 		}else if(arguments[0] == "playnext"){
-			receivedMessage.channel.send("Puts song next in the queue, must be given a link\nQueue usage: '" + prefix + "playnext'")
+			receivedMessage.channel.send("Puts song next in the queue, must be given a link\nQueue usage: '" + prefix + "playnext https://www.youtube.com/watch?v=O7y9aMIJG00'")
+        }else if(arguments[0] == "roulette"){
+            receivedMessage.channel.send("Moves a random person in your voice channel to the afk channel\nQueue usage: '" + prefix + "roulette'")
 		}
 	}else if(arguments.length == 0){
-		receivedMessage.channel.send(prefix + "help, " + prefix + "play, " + prefix + "pause, " + prefix + "resume, " + prefix + "skip, " + prefix + "stop, " + prefix + "autoplay, " + prefix + "queue, "  + prefix + "playing, "  + prefix + "back\nOr type in '" + prefix + "help <command>' for info on that command")
+		receivedMessage.channel.send(prefix + "help, " + prefix + "play, " + prefix + "pause, " + prefix + "resume, " + prefix + "skip, " + prefix + "stop, " + prefix + "autoplay, " + prefix + "queue, "  + prefix + "playing, "  + prefix + "back, "  + prefix + "playnext, " + prefix + "roulette\nOr type in '" + prefix + "help <command>' for info on that command")
 	} else {
 		receivedMessage.channel.send("I'm not sure what you need help with.")
 	}
@@ -147,7 +160,7 @@ function playCommand(arguments, receivedMessage){
 function play(connection, receivedMessage){
 	console.log("Starting play function\n")
 	const ytdl = require('ytdl-core')
-	const streamOptions = { seek: 0, volume: .10 }
+	const streamOptions = { seek: 0, volume: .40, quality: "highestaudio"}
 	const stream = ytdl(songQueue[0], {filter: "audioonly"})
 	broadcast = client.createVoiceBroadcast();
 	broadcast.playStream(stream, streamOptions)
@@ -265,6 +278,7 @@ function backCommand(arguments, receivedMessage){
 	// if(broadcast) broadcast.destroy()
 }
 
+//function to add song next in queue
 function playNextCommand(arguments, receivedMessage){
 	if(arguments.length != 1){
 		receivedMessage.channel.send("Please provide a link")
@@ -292,12 +306,74 @@ function playNextCommand(arguments, receivedMessage){
 	}
 }
 
+//function to move random player to afk channel
+function rouletteCommand(arguments, receivedMessage){
+    const now = new Date();
+    //cooldown in seconds
+    if (now - lastCommandUsage > 5 * 1000) {
+        const voiceChannel = receivedMessage.member.voiceChannel
+        if(voiceChannel !== undefined){
+            var members = voiceChannel.members
+            var randomMember = members.random()
+            incrementScore(randomMember)
+            //this is the afk channel in New PLebs Onlay
+            randomMember.setVoiceChannel('536984774510772224')
+                .then(() => console.log(`Moved ${randomMember.displayName}`))
+                .catch(console.error);
+            var personal_score = getScore(randomMember)
+            receivedMessage.channel.send(`${randomMember.toString()} has lost the roulette ${personal_score} times!`)
+            lastCommandUsage = now
+        }else{
+            receivedMessage.channel.send("You are not in a voice channel")
+        }
+    }else{
+        receivedMessage.channel.send("The roulette command is on cooldown")
+    }
+}
 
+function typoRouletteCommand(arguments, receivedMessage){
+    //move user to afk channel
+    const voiceChannel = receivedMessage.member.voiceChannel
+    if(voiceChannel !== undefined){
+        incrementScore(randomMember)
+        receivedMessage.member.setVoiceChannel('536984774510772224')
+            .then(() => console.log(`Moved ${receivedMessage.member.displayName}`))
+            .catch(console.error);
+        var personal_score = getScore(receivedMessage.member)
+        receivedMessage.channel.send(`${receivedMessage.member.toString()} has lost the roulette!`)
+    }else{
+         receivedMessage.channel.send("You are not in a voice channel")
+    }
+}
 
 //////////////////////////HELPER FUNCTIONS///////////////////////////////
 
+//imports the scores from json at start
+function importScore(){
+    scores = require("./src/scores.json")
+}
 
+//add 1 to score of user
+function incrementScore(member){
+    var oldScore = scores[member.id]
+    if(oldScore !== undefined){
+        scores[member.id] = oldScore + 1
+    }else{
+        scores[member.id] = 1
+    }
+    var fs = require("fs")
+    //write new scores to file
+    fs.writeFile("src/scores.json", JSON.stringify(scores), function(err){
+        if(err) throw err
+        console.log("complete")
+        }
+    );
+}
 
+//retrieves the score of a member for roulette
+function getScore(member){
+    return scores[member.id]
+}
 
 //calls api to get related video
 function autoPlay(videoUrl, receivedMessage){
@@ -417,7 +493,7 @@ function httpGetAsync(theUrl, callback, receivedMessage, outputStartText){
 
 //grab keys from file
 const fs = require("fs")
-fs.readFile("keys.txt", "utf-8", (err, data) => {
+fs.readFile("keys2.txt", "utf-8", (err, data) => {
 	if(err) throw err
 	lines = data.split("\n")
 	for(var line = 0; line < lines.length; line++){
@@ -427,3 +503,5 @@ fs.readFile("keys.txt", "utf-8", (err, data) => {
 	bot_secret_token = keys["discord_bot_token"]
 	client.login(bot_secret_token)
 })
+//import the scores
+importScore()
