@@ -335,7 +335,7 @@ function typoRouletteCommand(arguments, receivedMessage){
     //move user to afk channel
     const voiceChannel = receivedMessage.member.voiceChannel
     if(voiceChannel !== undefined){
-        incrementScore(randomMember)
+        incrementScore(receivedMessage.member)
         receivedMessage.member.setVoiceChannel('383383758679703575')
             .then(() => console.log(`Moved ${receivedMessage.member.displayName}`))
             .catch(console.error);
