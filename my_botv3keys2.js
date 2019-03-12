@@ -87,6 +87,8 @@ function processCommand(receivedMessage){
 		backCommand(arguments, receivedMessage)
 	}else if(primaryCommand == "playnext"){
 		playNextCommand(arguments, receivedMessage)
+    }else if(primaryCommand == "avatar"){
+        avatarCommand(arguments, receivedMessage)
     }else if(primaryCommand == "roulette"){
         rouletteCommand(arguments, receivedMessage)
     //misspelled roulette command
@@ -318,7 +320,7 @@ function rouletteCommand(arguments, receivedMessage){
             var randomMember = members.random()
             incrementScore(randomMember)
             //this is the afk channel in New PLebs Onlay
-            randomMember.setVoiceChannel('536984774510772224')
+            randomMember.setVoiceChannel('554939298554707970')
                 .then(() => console.log(`Moved ${randomMember.displayName}`))
                 .catch(console.error);
             var personal_score = getScore(randomMember)
@@ -332,6 +334,7 @@ function rouletteCommand(arguments, receivedMessage){
     }
 }
 
+//function to move the member who typed the command to afk channel
 function typoRouletteCommand(arguments, receivedMessage){
     //move user to afk channel
     const voiceChannel = receivedMessage.member.voiceChannel
@@ -344,6 +347,36 @@ function typoRouletteCommand(arguments, receivedMessage){
         receivedMessage.channel.send(`${receivedMessage.member.toString()} has lost the roulette!`)
     }else{
          receivedMessage.channel.send("You are not in a voice channel")
+    }
+}
+
+//function to return the avatar picture of discord user
+function avatarCommand(arguments, receivedMessage){
+    //if a name is tagged get avatar for that name
+    if(arguments[0] !== undefined){
+        //get the guild object
+        let guild = receivedMessage.member.guild
+        //need to strip unnecessary characters from arguments and fetch member
+        var input_id = arguments[0].replace(/\D/g,"")
+        //fetchMember returns a promise so when done send the avatarURL
+        var memberPromise = guild.fetchMember(input_id).catch(function(error){
+            //catch if input_id does not match anything
+            receivedMessage.channel.send("No user exists in this server")
+        }).then(function (member){
+            const embed = new Discord.RichEmbed()
+                .setTitle(`${member.displayName}`)
+                .setImage(member.user.avatarURL)
+            receivedMessage.channel.send({embed})
+        }).catch(function(error){
+            // second catch is necessary to prevent unhandled exceptions
+            console.log("User input wrong ID")
+        })
+    //get the avatar of person who sent command
+    }else{
+        const embed = new Discord.RichEmbed()
+            .setTitle(`${receivedMessage.member.displayName}`)
+            .setImage(receivedMessage.member.user.avatarURL)
+        receivedMessage.channel.send({embed})
     }
 }
 
@@ -427,7 +460,7 @@ function getVideoInfoHandler(response, receivedMessage, outputStartText){
 	receivedMessage.channel.send(embed)
 }
 
-//function to turn youtube api time into better format
+//function to turn youtube api time into better format for output to users
 function convertTime(inputStr){
 	var reptms = /^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$/;
 	var hours = 0, minutes = 0, seconds = 0, totalseconds;
@@ -441,8 +474,10 @@ function convertTime(inputStr){
 	}
 	
 	if(hours==0){
+        //(minutes 00, seconds 00) e.g. (01:28)
 		return(String(minutes).padStart(2,0) + ":" + String(seconds).padStart(2,0))
 	}else{
+        //(hours 00, minutes 00, seconds 00) e.g. (03:45:28)
 		return(String(hours).padStart(2,0) + ":" + String(minutes).padStart(2,0) + ":" + String(seconds).padStart(2,0))
 	}
 }
