@@ -319,7 +319,7 @@ function rouletteCommand(arguments, receivedMessage){
             var randomMember = members.random()
             incrementScore(randomMember)
             //this is the afk channel in New PLebs Onlay
-            randomMember.setVoiceChannel('536984774510772224')
+            randomMember.setVoiceChannel('554939298554707970')
                 .then(() => console.log(`Moved ${randomMember.displayName}`))
                 .catch(console.error);
             var personal_score = getScore(randomMember)

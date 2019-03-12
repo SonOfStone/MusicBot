@@ -403,6 +403,7 @@ function incrementScore(member){
         console.log("complete")
         }
     );
+    fs.close()
 }
 
 //retrieves the score of a member for roulette
