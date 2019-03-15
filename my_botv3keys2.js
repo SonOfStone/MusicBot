@@ -90,6 +90,8 @@ function processCommand(receivedMessage){
         avatarCommand(arguments, receivedMessage)
     }else if(primaryCommand == "roulette"){
         rouletteCommand(arguments, receivedMessage)
+    }else if(primaryCommand == "kys"){
+        boBurnhamCommand(arguments, receivedMessage)
     //misspelled roulette command
     }else if(/^roul/.test(primaryCommand)){
         typoRouletteCommand(arguments, receivedMessage)
@@ -377,6 +379,27 @@ function avatarCommand(arguments, receivedMessage){
             .setImage(receivedMessage.member.user.avatarURL)
         receivedMessage.channel.send({embed})
     }
+}
+
+//function to have bot join channel and play bo burnham
+function boBurnhamCommand(arguments, receivedMessage){
+    //check if user is in voice channel
+    if(!receivedMessage.member.voiceChannel){
+		receivedMessage.channel.send("You must be in a voice channel")
+		return
+	}
+    //attempt to join the voice channel
+    if(!receivedMessage.guild.voiceConnection) receivedMessage.member.voiceChannel.join().then(function(connection){
+        //create broadcast from mp3 file
+        const broadcast = client.createVoiceBroadcast();
+        broadcast.playFile("src/kys.mp3")
+        const dispatcher = connection.playBroadcast(broadcast)
+        //end the broadcast and connection when done
+        broadcast.on("end", () =>{
+            broadcast.destroy()
+            connection.disconnect();
+        })
+    })
 }
 
 //////////////////////////HELPER FUNCTIONS///////////////////////////////

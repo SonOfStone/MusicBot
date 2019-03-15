@@ -90,6 +90,8 @@ function processCommand(receivedMessage){
         avatarCommand(arguments, receivedMessage)
     }else if(primaryCommand == "roulette"){
         rouletteCommand(arguments, receivedMessage)
+    }else if(primaryCommand == "kys"){
+        boBurnhamCommand(arguments, receivedMessage)
     //misspelled roulette command
     }else if(/^roul/.test(primaryCommand)){
         typoRouletteCommand(arguments, receivedMessage)
@@ -379,9 +381,28 @@ function avatarCommand(arguments, receivedMessage){
     }
 }
 
+//function to have bot join channel and play bo burnham
+function boBurnhamCommand(arguments, receivedMessage){
+    //check if user is in voice channel
+    if(!receivedMessage.member.voiceChannel){
+		receivedMessage.channel.send("You must be in a voice channel")
+		return
+	}
+    //attempt to join the voice channel
+    if(!receivedMessage.guild.voiceConnection) receivedMessage.member.voiceChannel.join().then(function(connection){
+        //create broadcast from mp3 file
+        const broadcast = client.createVoiceBroadcast();
+        broadcast.playFile("src/kys.mp3")
+        const dispatcher = connection.playBroadcast(broadcast)
+        //end the broadcast and connection when done
+        broadcast.on("end", () =>{
+            broadcast.destroy()
+            connection.disconnect();
+        })
+    })
+}
 
 //////////////////////////HELPER FUNCTIONS///////////////////////////////
-
 
 //imports the scores from json at start
 function importScore(){
@@ -403,7 +424,6 @@ function incrementScore(member){
         console.log("complete")
         }
     );
-    fs.close()
 }
 
 //retrieves the score of a member for roulette
@@ -462,7 +482,7 @@ function getVideoInfoHandler(response, receivedMessage, outputStartText){
 	receivedMessage.channel.send(embed)
 }
 
-//function to turn youtube api time into better format for users
+//function to turn youtube api time into better format for output to users
 function convertTime(inputStr){
 	var reptms = /^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$/;
 	var hours = 0, minutes = 0, seconds = 0, totalseconds;
