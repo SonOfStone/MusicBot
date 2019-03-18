@@ -341,7 +341,7 @@ function typoRouletteCommand(arguments, receivedMessage){
     const voiceChannel = receivedMessage.member.voiceChannel
     if(voiceChannel !== undefined){
         incrementScore(receivedMessage.member)
-        receivedMessage.member.setVoiceChannel('536984774510772224')
+        receivedMessage.member.setVoiceChannel('554939298554707970')
             .then(() => console.log(`Moved ${receivedMessage.member.displayName}`))
             .catch(console.error);
         var personal_score = getScore(receivedMessage.member)
