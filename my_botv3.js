@@ -91,6 +91,8 @@ function processCommand(receivedMessage){
         avatarCommand(arguments, receivedMessage)
     }else if(primaryCommand == "roulette"){
         rouletteCommand(arguments, receivedMessage)
+    }else if(primaryCommand == "kys"){
+        boBurnhamCommand(arguments, receivedMessage)
     //misspelled roulette command
     }else if(/^roul/.test(primaryCommand)){
         typoRouletteCommand(arguments, receivedMessage)
@@ -380,9 +382,28 @@ function avatarCommand(arguments, receivedMessage){
     }
 }
 
+//function to have bot join channel and play bo burnham
+function boBurnhamCommand(arguments, receivedMessage){
+    //check if user is in voice channel
+    if(!receivedMessage.member.voiceChannel){
+		receivedMessage.channel.send("You must be in a voice channel")
+		return
+	}
+    //attempt to join the voice channel
+    if(!receivedMessage.guild.voiceConnection) receivedMessage.member.voiceChannel.join().then(function(connection){
+        //create broadcast from mp3 file
+        const broadcast = client.createVoiceBroadcast();
+        broadcast.playFile("src/kys.mp3")
+        const dispatcher = connection.playBroadcast(broadcast)
+        //end the broadcast and connection when done
+        broadcast.on("end", () =>{
+            broadcast.destroy()
+            connection.disconnect();
+        })
+    })
+}
 
 //////////////////////////HELPER FUNCTIONS///////////////////////////////
-
 
 //imports the scores from json at start
 function importScore(){
@@ -404,7 +425,6 @@ function incrementScore(member){
         console.log("complete")
         }
     );
-    fs.close()
 }
 
 //retrieves the score of a member for roulette
@@ -435,35 +455,47 @@ function getVideoInfo(videoUrl, receivedMessage, outputStartText){
 //takes in youtube api output for video title and length
 function getVideoInfoHandler(response, receivedMessage, outputStartText){
 	var json = JSON.parse(response)
-	var title = json["items"][0]["snippet"]["title"]
-	var titleCharLimit = 45
-	var url = "https://www.youtube.com/watch?v=" + json["items"][0]["id"]
-	if(title.length > titleCharLimit){
-		title = title.substr(0, titleCharLimit)
-		title += "..."
-		title = title.replace("[", "")
-		title = title.replace("]", "")
-	}
-	title = "[" + title + "]" + "(https://www.youtube.com/watch?v=" + json["items"][0]["id"] + ")"
-	
-	var duration = json["items"][0]["contentDetails"]["duration"]
-	duration = convertTime(duration)
-	
-	var description = json["items"][0]["snippet"]["description"]
-	var charLimit = 150
-	description = description.substr(0,charLimit)+"..."
-	//I did not want description at this time so empty string
-	description = ""
-	
-	if(outputStartText==null) var outputStartText = "Playing "
-	var outputStr = outputStartText + title + "   " + duration + "\n" + description
-	const embed = new Discord.RichEmbed()
-		.setColor(0xFF0000)
-		.setDescription(outputStr)
-	receivedMessage.channel.send(embed)
+    //if the api response has a description grab it and output in an embed
+    if(json["items"][0]!== undefined){
+        var title = json["items"][0]["snippet"]["title"]
+        var titleCharLimit = 45
+        var url = "https://www.youtube.com/watch?v=" + json["items"][0]["id"]
+        if(title.length > titleCharLimit){
+            title = title.substr(0, titleCharLimit)
+            title += "..."
+            title = title.replace("[", "")
+            title = title.replace("]", "")
+        }
+        title = "[" + title + "]" + "(https://www.youtube.com/watch?v=" + json["items"][0]["id"] + ")"
+        
+        var duration = json["items"][0]["contentDetails"]["duration"]
+        duration = convertTime(duration)
+        
+        var description = json["items"][0]["snippet"]["description"]
+        var charLimit = 150
+        description = description.substr(0,charLimit)+"..."
+        //I did not want description at this time so empty string
+        description = ""
+        
+        if(outputStartText==null) var outputStartText = "Playing "
+        var outputStr = outputStartText + title + "   " + duration + "\n" + description
+        const embed = new Discord.RichEmbed()
+            .setColor(0xFF0000)
+            .setDescription(outputStr)
+        receivedMessage.channel.send(embed)
+    //the api did not return any info so send the user a message
+    }else{
+        if(outputStartText==null) var outputStartText = "Playing "
+        var outputStr = outputStartText + "linked video \n But I could not find any info"
+        const embed = new Discord.RichEmbed()
+            .setColor(0xFF0000)
+            .setDescription(outputStr)
+        receivedMessage.channel.send(embed)
+    }
 }
 
-//function to turn youtube api time into better format for users
+
+//function to turn youtube api time into better format for output to users
 function convertTime(inputStr){
 	var reptms = /^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$/;
 	var hours = 0, minutes = 0, seconds = 0, totalseconds;
