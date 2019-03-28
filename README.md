@@ -57,7 +57,9 @@ You need a Google Account to access the Google API Console, request an API key, 
 Visit the Enabled APIs page. In the list of APIs, make sure the status is ON for the YouTube Data API v3.
 
 #### Step 5: Put all keys in keys.txt
-After you put all your API keys into your keys.txt it should look something like this:
+Create a new text file called keys.txt
+
+Put all your API keys in the file so it looks like this:
 
 ```
 Client_ID:27836237326-aksdj10ajadfkfljaa823jksdjfkfljf.apps.googleusercontent.com
