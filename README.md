@@ -9,8 +9,11 @@ These instructions will get you a copy of the project up and running on your loc
 ### Prerequisites
 
 You'll need to install:
+
 Node.js 6.0.0 or newer
+
 Python 2.7 for node-opus or python 3 for opusscript
+
 node-opus is preferable
 
 ### Installing
