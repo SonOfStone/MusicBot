@@ -7,6 +7,7 @@
 //add afk handler
 //perfect back command-write broadcast.destroy() in a handler
 //handle queue async requests better
+//refactor to have each command in its own .js file in order to make process of creating new commands easier
 
 //initialize bot
 const Discord = require('discord.js')
