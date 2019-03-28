@@ -45,7 +45,7 @@ Follow the discord.js guide [here](https://discordjs.guide/preparations/adding-y
 
 You need a Google Account to access the Google API Console, request an API key, and register your application.
 
-1. Go to https://console.developers.google.com
+1. Go to the [Google Developers Console](https://console.developers.google.com)
 2. Create a project in the Google Developers Console and obtain authorization credentials so your application can submit API requests.
 3. After creating your project, make sure the YouTube Data API is one of the services that your application is registered to use:
 4. Go to the API Console and select the project that you just registered.
