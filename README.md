@@ -36,9 +36,9 @@ npm install xmlhttprequest
 
 ```
 Outside of node:
-- ffmpeg
+- FFmpeg
 
-Follow [this guide](https://github.com/adaptlearning/adapt_authoring/wiki/Installing-FFmpeg) in order to install the ffmpeg binaries
+Follow [this guide](https://github.com/adaptlearning/adapt_authoring/wiki/Installing-FFmpeg) in order to install the FFmpeg binaries
 
 #### Step 2: Get Discord bot token
 Follow the discord.js guide [here](https://discordjs.guide/preparations/setting-up-a-bot-application.html#creating-your-bot) on creating the bot
@@ -51,7 +51,7 @@ Follow the discord.js guide [here](https://discordjs.guide/preparations/adding-y
 You need a Google Account to access the Google API Console, request an API key, and register your application.
 
 1. Go to the [Google Developers Console](https://console.developers.google.com)
-2. Create a project in the Google Developers Console and obtain authorization credentials so your application can submit API requests.
+2. Create a project and obtain authorization credentials so your application can submit API requests.
 3. After creating your project, make sure the YouTube Data API is one of the services that your application is registered to use:
 4. Go to the API Console and select the project that you just registered.
 Visit the Enabled APIs page. In the list of APIs, make sure the status is ON for the YouTube Data API v3.
