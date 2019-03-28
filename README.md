@@ -35,6 +35,11 @@ npm install ytdl-core
 npm install xmlhttprequest
 
 ```
+Outside of node:
+- ffmpeg
+
+Follow [this guide](https://github.com/adaptlearning/adapt_authoring/wiki/Installing-FFmpeg) in order to install the ffmpeg binaries
+
 #### Step 2: Get Discord bot token
 Follow the discord.js guide [here](https://discordjs.guide/preparations/setting-up-a-bot-application.html#creating-your-bot) on creating the bot
 
