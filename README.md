@@ -38,13 +38,14 @@ Follow the discord.js guide [here](https://discordjs.guide/preparations/setting-
 #### Step 3: Add bot to Discord Server
 Follow the discord.js guide [here](https://discordjs.guide/preparations/adding-your-bot-to-servers.html) on adding the bot to a server
 
-#### Step 4: Grab Google API keys for to get video information
+#### Step 4: Grab Google API keys to get video information
 
 You need a Google Account to access the Google API Console, request an API key, and register your application.
 
-1. Create a project in the Google Developers Console and obtain authorization credentials so your application can submit API requests.
-2. After creating your project, make sure the YouTube Data API is one of the services that your application is registered to use:
-3. Go to the API Console and select the project that you just registered.
+1. Go to https://console.developers.google.com
+2. Create a project in the Google Developers Console and obtain authorization credentials so your application can submit API requests.
+3. After creating your project, make sure the YouTube Data API is one of the services that your application is registered to use:
+4. Go to the API Console and select the project that you just registered.
 Visit the Enabled APIs page. In the list of APIs, make sure the status is ON for the YouTube Data API v3.
 
 #### Step 5: Put all keys in keys.txt
@@ -71,5 +72,5 @@ The bot should then come online in the Discord server you added it to and can be
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE) file for details
 
