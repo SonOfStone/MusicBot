@@ -17,7 +17,7 @@ module.exports = {
                 var randomMember = members.random()
                 client.helpers.get("incrementScore").execute(randomMember, client)
                 //this is the afk channel in New PLebs Onlay
-                randomMember.setVoiceChannel('383383758679703575')
+                randomMember.setVoiceChannel(client.variables.get("rouletteChannel"))
                     .then(() => console.log(`Moved ${randomMember.displayName}`))
                     .catch(console.error);
                 var personal_score = client.helpers.get("getScore").execute(randomMember, client)
