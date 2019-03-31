@@ -18,6 +18,7 @@ module.exports = {
         variables.set("broadcast" + receivedMessage.guild.id, broadcast)
         broadcast.playStream(stream, streamOptions)
         const dispatcher = connection.playBroadcast(broadcast)
+        variables.set("dispatcher" + receivedMessage.guild.id, dispatcher)
         
         if(variables.has("lastSongs" + receivedMessage.guild.id)){
             lastSongs = variables.get("lastSongs" + receivedMessage.guild.id)
@@ -47,6 +48,7 @@ module.exports = {
             broadcast.destroy()
         })
         dispatcher.on("end", () =>{
+            songQueue = variables.get("songQueue" + receivedMessage.guild.id)
             if(songQueue[0]){
                 helpers.get("play").execute(connection, receivedMessage, client);
             }else{
