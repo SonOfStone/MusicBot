@@ -29,6 +29,7 @@ client.variables.set("scores", scores)
 
 const commandFiles = fs.readdirSync("./commands").filter(file => file.endsWith(".js"));
 const helperFiles = fs.readdirSync("./helpers").filter(file => file.endsWith(".js"));
+const clipFiles = fs.readdirSync("./src/clips").filter(file => file.endsWith(".mp3"));
 
 //loop through all files and add them to the commands collection
 for (const file of commandFiles) {
@@ -40,6 +41,12 @@ for (const file of commandFiles) {
 for (const file of helperFiles) {
 	const helper = require(`./helpers/${file}`);
 	client.helpers.set(helper.name, helper);
+}
+
+//loop through all mp3 files and add them to the commands with the playClip helper
+for (const file of clipFiles) {
+    fileName = file.substring(0, file.length-4)
+    client.commands.set(fileName, client.helpers.get("playClip"))
 }
 
 client.on("ready", () => {
@@ -75,7 +82,7 @@ function processCommand(receivedMessage){
 	
     if (!client.commands.has(primaryCommand)) return;
     try {
-        client.commands.get(primaryCommand).execute(receivedMessage, arguments, client);
+        client.commands.get(primaryCommand).execute(receivedMessage, arguments, client, primaryCommand)
     } catch (error) {
         console.error(error);
         receivedMessage.reply('there was an error trying to execute that command!');

@@ -1,7 +1,7 @@
 module.exports = {
-	name: 'kys',
-	description: 'Plays a short audio clip from Bo Burnham',
-	execute(receivedMessage, arguments, client) {
+	name: 'playClip',
+	description: 'Loads an mp3 file and plays it',
+	execute(receivedMessage, arguments, client, primaryCommand) {
         variables = client.variables
         //check if user is in voice channel
         if(!receivedMessage.member.voiceChannel){
@@ -12,7 +12,7 @@ module.exports = {
         if(!receivedMessage.guild.voiceConnection) receivedMessage.member.voiceChannel.join().then(function(connection){
             //create broadcast from mp3 file
             const broadcast = client.createVoiceBroadcast();
-            broadcast.playFile("src/kys.mp3")
+            broadcast.playFile("src/clips/" + primaryCommand + ".mp3")
             const dispatcher = connection.playBroadcast(broadcast)
             //end the broadcast and connection when done
             broadcast.on("end", () =>{
