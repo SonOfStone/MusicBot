@@ -4,8 +4,9 @@ module.exports = {
 	execute(receivedMessage, arguments, client) {
         variables = client.variables
         helpers = client.helpers
-        if(arguments.length != 1){
-            receivedMessage.channel.send("Please provide a link")
+        console.log(arguments)
+        if(arguments.length < 1){
+            receivedMessage.channel.send("Please provide a link or some search terms")
             return
         }
         if(!receivedMessage.member.voiceChannel){
@@ -40,6 +41,9 @@ module.exports = {
                 helpers.get("play").execute(connection, receivedMessage, client)
             })
             .catch(console.error)
+        }else if(arguments[0] !== undefined){
+            var apiUrl = "https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&q=" + arguments.join() + "&type=video&key=" + client.variables.get("Api_key")
+            var apiCallResponse = helpers.get("httpGetAsync").execute(apiUrl, helpers.get("searchVideoResponseHandler"), receivedMessage, client)
         }else{
             receivedMessage.channel.send("Could not find a video with your link")
         }
