@@ -10,7 +10,9 @@ module.exports = {
                 // console.log("we made it")
                 callback.execute(xmlHttp.responseText, receivedMessage, client, outputStartText)
         }
-        xmlHttp.open("GET", theUrl, true) // true for asynchronous 
+        console.log(theUrl)
+        var encodedURL = encodeURI(theUrl)
+        xmlHttp.open("GET", encodedURL, true) // true for asynchronous 
         xmlHttp.send(null)
 	},
 };
