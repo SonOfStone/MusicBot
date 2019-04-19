@@ -38,6 +38,7 @@ module.exports = {
             //display queue if bigger than 1
             if(songQueue.length > 1)client.commands.get("queue").execute(receivedMessage, arguments, client)
             if(!receivedMessage.guild.voiceConnection) receivedMessage.member.voiceChannel.join().then(function(connection){
+                console.log("accessing play helper")
                 helpers.get("play").execute(connection, receivedMessage, client)
             })
             .catch(console.error)

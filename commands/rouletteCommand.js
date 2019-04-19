@@ -15,8 +15,9 @@ module.exports = {
             if(voiceChannel !== undefined){
                 var members = voiceChannel.members
                 var randomMember = members.random()
+                //increment the member's score
                 client.helpers.get("incrementScore").execute(randomMember, client)
-                //this is the afk channel in New PLebs Onlay
+                //grab the afk channel from the variables and move the user to that channel
                 randomMember.setVoiceChannel(client.variables.get("rouletteChannel"))
                     .then(() => console.log(`Moved ${randomMember.displayName}`))
                     .catch(console.error);
@@ -24,6 +25,12 @@ module.exports = {
                 receivedMessage.channel.send(`${randomMember.toString()} has lost the roulette ${personal_score} times!`)
                 lastCommandUsage = now
                 client.variables.set("lastRouletteUsage" + receivedMessage.guild.id, lastCommandUsage)
+                //attempt to return user to original channel asynchronously
+                setTimeout(function(){  
+                    randomMember.setVoiceChannel(voiceChannel)
+                        .then(() => console.log(`Moved ${randomMember.displayName}`))
+                        .catch(console.error);
+                }, 10000)
             }else{
                 receivedMessage.channel.send("You are not in a voice channel")
             }
