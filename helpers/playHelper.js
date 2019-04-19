@@ -8,16 +8,17 @@ module.exports = {
         
         //define songQueue
         songQueue = variables.get("songQueue" + receivedMessage.guild.id)
-        
+        console.log(songQueue)
         console.log("Starting play function\n")
         const ytdl = require('ytdl-core')
         const streamOptions = { seek: 0, volume: .40, quality: "highestaudio"}
         const stream = ytdl(songQueue[0], {filter: "audioonly"})
-        broadcast = client.createVoiceBroadcast();
+        broadcast = client.createVoiceBroadcast()
         
         variables.set("broadcast" + receivedMessage.guild.id, broadcast)
         broadcast.playStream(stream, streamOptions)
         const dispatcher = connection.playBroadcast(broadcast)
+        variables.set("dispatcher" + receivedMessage.guild.id, dispatcher)
         
         if(variables.has("lastSongs" + receivedMessage.guild.id)){
             lastSongs = variables.get("lastSongs" + receivedMessage.guild.id)
@@ -33,6 +34,7 @@ module.exports = {
         }
         
         lastSong = songQueue.shift();
+        variables.set("songQueue" + receivedMessage.guild.id, songQueue)
         variables.set("lastSong" + receivedMessage.guild.id, lastSong)
         lastSongs.push(lastSong)
         variables.set("lastSongs" + receivedMessage.guild.id, lastSongs)
@@ -47,6 +49,7 @@ module.exports = {
             broadcast.destroy()
         })
         dispatcher.on("end", () =>{
+            songQueue = variables.get("songQueue" + receivedMessage.guild.id)
             if(songQueue[0]){
                 helpers.get("play").execute(connection, receivedMessage, client);
             }else{
