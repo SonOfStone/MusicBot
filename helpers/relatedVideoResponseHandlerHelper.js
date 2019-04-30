@@ -20,7 +20,7 @@ module.exports = {
         var notFound = true
         var counter = 0
         //find an id in the response not in songQueueIds
-        while(notFound && counter <= 4){
+        while(notFound && counter < 4){
             var nextVideoId = json["items"][counter]["id"]["videoId"]
             console.log(nextVideoId)
             console.log(songQueueIds)
@@ -33,8 +33,10 @@ module.exports = {
             }
             counter ++
         }
-        var nextUrl = "https://www.youtube.com/watch?v=" + nextVideoId
-        //send play command for next video
-        client.commands.get("play").execute(receivedMessage, [nextUrl], client)
+        if(notFound === false){
+            var nextUrl = "https://www.youtube.com/watch?v=" + nextVideoId
+            //send play command for next video
+            client.commands.get("play").execute(receivedMessage, [nextUrl], client)
+        }
 	},
 };

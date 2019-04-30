@@ -25,6 +25,7 @@ module.exports = {
                 variables.set("songQueue" + receivedMessage.guild.id, [])
                 songQueue = variables.get("songQueue" + receivedMessage.guild.id)
             }
+            
             //if no queueids create one
             if(variables.has("songQueueIds" + receivedMessage.guild.id)){
                 songQueueIds = variables.get("songQueueIds" + receivedMessage.guild.id)
@@ -35,8 +36,10 @@ module.exports = {
             songQueue.push(arguments[0])
             var videoId = arguments[0].split("?v=")[1]
             songQueueIds[videoId] = arguments[0]
-            //display queue if bigger than 1
-            if(songQueue.length > 1)client.commands.get("queue").execute(receivedMessage, arguments, client)
+            //if a song is currently playing display the queue
+            broadcast = client.variables.get("broadcast" + receivedMessage.guild.id)
+            if(broadcast)client.commands.get("queue").execute(receivedMessage, arguments, client)
+                
             if(!receivedMessage.guild.voiceConnection) receivedMessage.member.voiceChannel.join().then(function(connection){
                 console.log("accessing play helper")
                 helpers.get("play").execute(connection, receivedMessage, client)

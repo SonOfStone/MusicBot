@@ -46,15 +46,20 @@ module.exports = {
             client.helpers.get("getRelatedVideo").execute(lastSong, receivedMessage, client)
         }
         broadcast.on("end", () =>{
+            //this marks the end of a song
             broadcast.destroy()
         })
         dispatcher.on("end", () =>{
+            //this marks the end of a song also
             songQueue = variables.get("songQueue" + receivedMessage.guild.id)
             if(songQueue[0]){
-                helpers.get("play").execute(connection, receivedMessage, client);
+                helpers.get("play").execute(connection, receivedMessage, client)
             }else{
-                lastSong = null
                 lastSongs = []
+                variables.set("lastSongs" + receivedMessage.guild.id, lastSongs)
+                //delete the broadcast variable when dispatcher finally ends
+                variables.delete("broadcast" + receivedMessage.guild.id)
+                variables.delete("dispatcher" + receivedMessage.guild.id)
                 connection.disconnect();
             }
         })
