@@ -4,6 +4,8 @@ module.exports = {
 	execute(receivedMessage, arguments, client) {
         variables = client.variables
         helpers = client.helpers
+        
+        //get autoPlayFlag
         if(variables.has("autoPlayFlag" + receivedMessage.guild.id)){
             autoPlayFlag = variables.get("autoPlayFlag" + receivedMessage.guild.id)
         }else{
@@ -19,7 +21,8 @@ module.exports = {
             songQueue = variables.get("songQueue" + receivedMessage.guild.id)
         }
         
-        if(arguments.length==1){
+        //if supplied an argument turn autoplay flag on and play that argument
+        if(arguments.length>=1){
             variables.set("autoPlayFlag" + receivedMessage.guild.id, true)
             client.commands.get("play").execute(receivedMessage, arguments, client)
         }else if(arguments.length==0){
