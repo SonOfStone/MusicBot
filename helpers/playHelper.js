@@ -12,7 +12,7 @@ module.exports = {
         console.log("Starting play function\n")
         const ytdl = require('ytdl-core')
         const streamOptions = { seek: 0, volume: .40, quality: "highestaudio"}
-        const stream = ytdl(songQueue[0], {filter: "audioonly"})
+        const stream = ytdl(songQueue[0], {filter: "audio"})
         broadcast = client.createVoiceBroadcast()
         
         variables.set("broadcast" + receivedMessage.guild.id, broadcast)
