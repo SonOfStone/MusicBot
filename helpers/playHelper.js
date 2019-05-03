@@ -49,6 +49,17 @@ module.exports = {
             //this marks the end of a song
             broadcast.destroy()
         })
+        //testing purposes
+        broadcast.on("warn", () =>{
+            console.log("warning in broadcast")
+        })
+        broadcast.on("error", (error) =>{
+            console.log("Broadcast received an error")
+            if(error.toString() == "Error: No formats found with custom filter"){
+                receivedMessage.channel.send("This video has no audio format")
+            }
+            console.log(error)
+        })
         dispatcher.on("end", () =>{
             //this marks the end of a song also
             songQueue = variables.get("songQueue" + receivedMessage.guild.id)
