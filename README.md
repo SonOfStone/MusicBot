@@ -33,6 +33,8 @@ or
 npm install discord.js opusscript
 npm install ytdl-core
 npm install xmlhttprequest
+npm install request-promise
+npm install request
 
 ```
 Outside of node:
