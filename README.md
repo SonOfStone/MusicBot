@@ -35,6 +35,7 @@ npm install ytdl-core
 npm install xmlhttprequest
 npm install request-promise
 npm install request
+npm install cheerio
 
 ```
 Outside of node:
