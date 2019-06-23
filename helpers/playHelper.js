@@ -15,7 +15,7 @@ async function execute(connection, receivedMessage, client) {
     songQueue = variables.get("songQueue" + receivedMessage.guild.id)
     const ytdl = require('ytdl-core')
     
-    const streamOptions = { seek: 0, volume: .40, quality: "highestaudio"}
+    const streamOptions = { seek: 0, volume: 1, quality: "highestaudio"}
     const stream = ytdl(songQueue[0], {filter: "audio"})
     broadcast = client.createVoiceBroadcast()
     
@@ -60,9 +60,11 @@ async function execute(connection, receivedMessage, client) {
     broadcast.on("error", async(error) =>{
         console.log("Broadcast received an error")
         if(error.toString() == "Error: Status code: 403"){
-            var sleep = require('sleep');
-            await sleep(100)
+            console.log("this is in a 403 conditional")
+            //var sleep = require('sleep');
+            await sleep(1000)
             songQueue.unshift(lastSong)
+            helpers.get("play").execute(connection, receivedMessage, client)
         }
         console.log(error)
     })
