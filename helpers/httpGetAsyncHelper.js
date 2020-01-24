@@ -6,9 +6,10 @@ module.exports = {
         var xmlHttp = new XMLHttpRequest()
         xmlHttp.responseType = "json"
         xmlHttp.onreadystatechange = function() { 
-            if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+            if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
                 // console.log("we made it")
                 callback.execute(xmlHttp.responseText, receivedMessage, client, outputStartText)
+            }
         }
         var encodedURL = encodeURI(theUrl)
         xmlHttp.open("GET", encodedURL, true) // true for asynchronous 

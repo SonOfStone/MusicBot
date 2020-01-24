@@ -16,7 +16,7 @@ async function execute(connection, receivedMessage, client) {
     const ytdl = require('ytdl-core')
     
     const streamOptions = { seek: 0, volume: 1, quality: "highestaudio"}
-    const stream = ytdl(songQueue[0], {filter: "audio"})
+    const stream = ytdl(songQueue[0], {filter: "audio", highWaterMark: 1<<25})
     broadcast = client.createVoiceBroadcast()
     
     variables.set("broadcast" + receivedMessage.guild.id, broadcast)

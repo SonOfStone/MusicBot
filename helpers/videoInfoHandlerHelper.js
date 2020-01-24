@@ -5,6 +5,7 @@ module.exports = {
         const Discord = require("discord.js")
         helpers = client.helpers
         var json = JSON.parse(response)
+        
         //if the api response has a description grab it and output in an embed
         if(json["items"][0]!== undefined){
             var title = json["items"][0]["snippet"]["title"]
