@@ -4,7 +4,11 @@ module.exports = {
 	execute(receivedMessage, arguments, client) {
         //if supplied an argument return help on that command
         if(arguments.length > 0){
-            receivedMessage.channel.send(client.commands.get(arguments[0]).description + "\n" + "Usage: " + client.variables.get("prefix")+ client.commands.get(arguments[0]).name)
+            helpMsg = client.commands.get(arguments[0]).description + "\n" + "Usage: " + client.variables.get("prefix")+ client.commands.get(arguments[0]).name
+            if(client.commands.get(arguments[0]).example !== undefined){
+                helpMsg += " " + client.commands.get(arguments[0]).example
+            }
+            receivedMessage.channel.send(helpMsg)
         //else give a list of commands
         }else{
             var listOfCommands = "Here are the commands: \n"

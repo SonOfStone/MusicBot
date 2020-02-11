@@ -1,6 +1,7 @@
 module.exports = {
 	name: 'play',
 	description: 'Plays a linked song',
+    example: 'all star lyrics',
 	execute(receivedMessage, arguments, client) {
         variables = client.variables
         helpers = client.helpers

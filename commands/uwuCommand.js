@@ -1,12 +1,14 @@
 module.exports = {
 	name: 'uwu',
 	description: 'Repeats your text but UwU-ified',
+    example: 'See me wag my little baby tail all over you',
 	execute(receivedMessage, arguments, client) {
         
         //function to return a uwu converted word
         function uwuIfyWord(word){
             var uwuWord = ""
-            for(var i = 0; i < word.length; i++){
+            var i = 0
+            while(i < word.length){
                 if(['l','r'].indexOf(word.charAt(i)) >= 0){
                     uwuWord += "w"
                 }else if(['L','R'].indexOf(word.charAt(i)) >= 0){
@@ -15,13 +17,14 @@ module.exports = {
                     uwuWord += "ny"
                 }else if(word.charAt(i) == "N" && word.charAt(i+1).toLowerCase() == "o"){
                     uwuWord += "Ny"
+                }else if(word.charAt(i) == "t" && word.charAt(i+1).toLowerCase() == "t"){
+                    uwuWord += "dd"
+                    i++
                 }else{
                     uwuWord += word.charAt(i)
                 }
+                i++
             }
-            console.log(uwuWord)
-            uwuWord += word.charAt(word.length)
-            console.log(uwuWord)
             return uwuWord
         }
         
