@@ -2,6 +2,10 @@ module.exports = {
 	name: 'playClip',
 	description: 'Loads an mp3 file and plays it',
 	execute(receivedMessage, arguments, client, primaryCommand) {
+        receivedMessage.delete()
+        .then(msg => console.log(`Deleted message from ${msg.author.username}`))
+        .catch(console.error);
+        
         variables = client.variables
         //check if user is in voice channel
         if(!receivedMessage.member.voiceChannel){
