@@ -16,7 +16,7 @@ client.commands = new Discord.Collection();
 client.variables = new Discord.Collection();
 client.helpers = new Discord.Collection();
 
-const { Client_ID, Client_secret, Api_key, discord_bot_token, prefix, rouletteChannel } = require('./keys.json');
+const { Client_ID, Client_secret, Api_key, discord_bot_token, prefix, rouletteChannel, giphy_key } = require('./keys.json');
 const scores = require("./src/scores.json")
 
 client.variables.set("Client_ID", Client_ID)
@@ -25,6 +25,7 @@ client.variables.set("Api_key", Api_key)
 client.variables.set("discord_bot_token", discord_bot_token)
 client.variables.set("prefix", prefix)
 client.variables.set("rouletteChannel", rouletteChannel)
+client.variables.set("giphy_key", giphy_key)
 client.variables.set("scores", scores)
 
 const commandFiles = fs.readdirSync("./commands").filter(file => file.endsWith(".js"));
