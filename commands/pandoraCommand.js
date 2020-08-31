@@ -15,7 +15,7 @@ module.exports = {
             };
 
             var driver = new Builder().forBrowser('chrome')
-                .setChromeOptions(new chrome.Options().headless().windowSize(screen))
+                .setChromeOptions(new chrome.Options().headless().windowSize(screen).addArguments("--mute-audio"))
                 .build();
 
             try {
