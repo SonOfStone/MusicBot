@@ -6,7 +6,8 @@ module.exports = {
         if(arguments.length > 0){
             helpMsg = client.commands.get(arguments[0]).description + "\n" + "Usage: " + client.variables.get("prefix")+ client.commands.get(arguments[0]).name
             if(client.commands.get(arguments[0]).example !== undefined){
-                helpMsg += " " + client.commands.get(arguments[0]).example
+                //add the example message and replace the prefix with the configured one
+                helpMsg += " " + client.commands.get(arguments[0]).example.replace(/\{prefix\}/g, client.variables.get("prefix"));
             }
             receivedMessage.channel.send(helpMsg)
         //else give a list of commands

@@ -33,7 +33,7 @@ async function execute(connection, receivedMessage, client) {
     if(variables.has("autoPlayFlag" + receivedMessage.guild.id)){
         autoPlayFlag = variables.get("autoPlayFlag" + receivedMessage.guild.id)
     }else{
-        variables.set("autoPlayFlag" + receivedMessage.guild.id, false)
+        variables.set("autoPlayFlag" + receivedMessage.guild.id, "off")
         autoPlayFlag = variables.get("autoPlayFlag" + receivedMessage.guild.id)
     }
     
@@ -44,10 +44,18 @@ async function execute(connection, receivedMessage, client) {
     variables.set("lastSongs" + receivedMessage.guild.id, lastSongs)
     
     helpers.get("getVideoInfo").execute(lastSong, receivedMessage, client)
-    if(autoPlayFlag && songQueue.length==0){
-        //trying to find next song
-        console.log("finding next song")
-        client.helpers.get("getRelatedVideo").execute(lastSong, receivedMessage, client)
+    //check if autoplay is not off and the queue is empty
+    if(autoPlayFlag != "off" && songQueue.length==0){
+        //check if autoplay is set to recommended
+        if(autoPlayFlag == "recommended"){
+            //trying to find next song
+            console.log("finding next song");
+            client.helpers.get("getRelatedVideo").execute(lastSong, receivedMessage, client);
+        }else if(autoPlayFlag == "random"){
+            //call randomsong
+            console.log("finding a random song");
+            client.commands.get("randomsong").execute(receivedMessage, [], client);
+        }
     }
     broadcast.on("end", () =>{
         //this marks the end of a song

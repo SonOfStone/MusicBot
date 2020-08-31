@@ -10,11 +10,11 @@ module.exports = {
         if(arguments.length == 0){
             client.variables.set("songQueueIds" + receivedMessage.guild.id, {})
             client.variables.set("songQueue" + receivedMessage.guild.id, [])
-            client.variables.set("autoPlayFlag" + receivedMessage.guild.id, false)
+            client.variables.set("autoPlayFlag" + receivedMessage.guild.id, "off")
             if(broadcast)broadcast.destroy()
         }else if(arguments[0] = "autoplay"){
             client.variables.set("songQueueIds" + receivedMessage.guild.id, {})
-            client.variables.set("autoPlayFlag" + receivedMessage.guild.id, false)
+            client.variables.set("autoPlayFlag" + receivedMessage.guild.id, "off")
         }
 	},
 };
