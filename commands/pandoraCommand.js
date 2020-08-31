@@ -15,7 +15,7 @@ module.exports = {
             };
 
             var driver = new Builder().forBrowser('chrome')
-                .setChromeOptions(new chrome.Options().windowSize(screen))
+                .setChromeOptions(new chrome.Options().headless().windowSize(screen))
                 .build();
 
             try {
