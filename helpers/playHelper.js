@@ -51,10 +51,16 @@ async function execute(connection, receivedMessage, client) {
             //trying to find next song
             console.log("finding next song");
             client.helpers.get("getRelatedVideo").execute(lastSong, receivedMessage, client);
+        //check if autoplay is set to random
         }else if(autoPlayFlag == "random"){
             //call randomsong
             console.log("finding a random song");
             client.commands.get("randomsong").execute(receivedMessage, [], client);
+        //check if autoplay is set to pandora
+        }else if(autoPlayFlag == "pandora"){
+            //call the pandora command
+            console.log("get a song from pandora");
+            client.commands.get("pandora").execute(receivedMessage, [], client);
         }
     }
     broadcast.on("end", () =>{
