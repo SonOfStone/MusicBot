@@ -8,7 +8,7 @@ module.exports = {
             receivedMessage.channel.send("Please provide a link")
             return
         }
-        if(!receivedMessage.member.voiceChannel){
+        if(!receivedMessage.member.voice.channel){
             receivedMessage.channel.send("You must be in a voice channel")
             return
         }

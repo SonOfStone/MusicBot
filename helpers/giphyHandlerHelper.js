@@ -10,7 +10,7 @@ module.exports = {
         var giphyImage = json["data"][0]["images"]["original"]["url"];
 
         //create embed for image
-        const embed = new Discord.RichEmbed()
+        const embed = new Discord.MessageEmbed()
             .setImage(giphyImage);
         receivedMessage.channel.send(embed);
 	},

@@ -5,23 +5,21 @@ module.exports = {
         receivedMessage.delete()
         .then(msg => console.log(`Deleted message from ${msg.author.username}`))
         .catch(console.error);
-        
+
+        const fs = require('fs');
+
         variables = client.variables
         //check if user is in voice channel
-        if(!receivedMessage.member.voiceChannel){
+        if(!receivedMessage.member.voice.channel){
             receivedMessage.channel.send("You must be in a voice channel")
             return
         }
         //attempt to join the voice channel
-        if(!receivedMessage.guild.voiceConnection) receivedMessage.member.voiceChannel.join().then(function(connection){
-            //create broadcast from mp3 file
-            const broadcast = client.createVoiceBroadcast();
-            broadcast.playFile("src/clips/" + primaryCommand + ".mp3")
-            const dispatcher = connection.playBroadcast(broadcast)
-            //end the broadcast and connection when done
-            broadcast.on("end", () =>{
-                broadcast.destroy()
-            })
+        if(client.voice.connections.filter(connection => connection.channel.id === receivedMessage.member.voice.channel.id).array().length === 0) receivedMessage.member.voice.channel.join().then(function(connection){
+            //create dispatcher from mp3 file
+            const dispatcher = connection.play(fs.createReadStream("src/clips/" + primaryCommand + ".mp3"))
+            variables.set("dispatcher" + receivedMessage.guild.id, dispatcher)
+
             //check if server already has a queue
             if(variables.has("songQueue" + receivedMessage.guild.id)){
                 songQueue = variables.get("songQueue" + receivedMessage.guild.id)
@@ -30,7 +28,7 @@ module.exports = {
                 variables.set("songQueue" + receivedMessage.guild.id, [])
                 songQueue = variables.get("songQueue" + receivedMessage.guild.id)
             }
-            dispatcher.on("end", () =>{
+            dispatcher.on("finish", () =>{
                 if(songQueue[0]){
                     helpers.get("play").execute(connection, receivedMessage, client);
                 }else{

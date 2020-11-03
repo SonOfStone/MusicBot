@@ -2,7 +2,7 @@
 //timer to see song progress
 //add games
 //add afk handler
-//perfect back command-write broadcast.destroy() in a handler
+//perfect back command-write dispatcher.end() in a handler
 //handle queue async requests better
 
 //initialize bot

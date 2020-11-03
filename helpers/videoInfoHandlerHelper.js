@@ -30,7 +30,7 @@ module.exports = {
             
             if(outputStartText==null) var outputStartText = "Playing "
             var outputStr = outputStartText + title + "   " + duration + "\n" + description
-            const embed = new Discord.RichEmbed()
+            const embed = new Discord.MessageEmbed()
                 .setColor(0xFF0000)
                 .setDescription(outputStr)
             receivedMessage.channel.send(embed)
@@ -38,7 +38,7 @@ module.exports = {
         }else{
             if(outputStartText==null) var outputStartText = "Playing "
             var outputStr = outputStartText + "linked video \n But I could not find any info"
-            const embed = new Discord.RichEmbed()
+            const embed = new Discord.MessageEmbed()
                 .setColor(0xFF0000)
                 .setDescription(outputStr)
             receivedMessage.channel.send(embed)

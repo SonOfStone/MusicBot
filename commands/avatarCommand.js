@@ -14,7 +14,7 @@ module.exports = {
                 //catch if input_id does not match anything
                 receivedMessage.channel.send("No user exists in this server")
             }).then(function (member){
-                const embed = new Discord.RichEmbed()
+                const embed = new Discord.MessageEmbed()
                     .setTitle(`${member.displayName}`)
                     .setImage(member.user.avatarURL)
                 receivedMessage.channel.send({embed})
@@ -24,9 +24,9 @@ module.exports = {
             })
         //get the avatar of person who sent command
         }else{
-            const embed = new Discord.RichEmbed()
+            const embed = new Discord.MessageEmbed()
                 .setTitle(`${receivedMessage.member.displayName}`)
-                .setImage(receivedMessage.member.user.avatarURL)
+                .setImage(receivedMessage.member.user.avatarURL())
             receivedMessage.channel.send({embed})
         }
 	},

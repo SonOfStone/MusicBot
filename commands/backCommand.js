@@ -16,7 +16,8 @@ module.exports = {
             
             songQueue.shift()
             songQueue.unshift(backSongLink)
-            if(broadcast) broadcast.destroy()
+            dispatcher = client.variables.get("dispatcher" + receivedMessage.guild.id)
+            if(dispatcher) dispatcher.end()
         }else{
             receivedMessage.channel.send("No song to go back to.")
         }
