@@ -4,19 +4,24 @@ module.exports = {
 	execute(receivedMessage, arguments, client) {
         //if supplied an argument return help on that command
         if(arguments.length > 0){
-            helpMsg = client.commands.get(arguments[0]).description + "\n" + "Usage: " + client.variables.get("prefix")+ client.commands.get(arguments[0]).name
-            if(client.commands.get(arguments[0]).example !== undefined){
-                //add the example message and replace the prefix with the configured one
-                helpMsg += " " + client.commands.get(arguments[0]).example.replace(/\{prefix\}/g, client.variables.get("prefix"));
+            //check if command exists and not hidden
+            if(client.commands.get(arguments[0]) !== undefined && client.commands.get(arguments[0]).hide !== true){
+                helpMsg = client.commands.get(arguments[0]).description + "\n" + "Usage: " + client.variables.get("prefix")+ client.commands.get(arguments[0]).name
+                if(client.commands.get(arguments[0]).example !== undefined){
+                    //add the example message and replace the prefix with the configured one
+                    helpMsg += " " + client.commands.get(arguments[0]).example.replace(/\{prefix\}/g, client.variables.get("prefix"));
+                }
+                receivedMessage.channel.send(helpMsg)
+            }else{
+                receivedMessage.channel.send("Sorry, that command does not exist.");
             }
-            receivedMessage.channel.send(helpMsg)
         //else give a list of commands
         }else{
             var listOfCommands = "Here are the commands: \n"
             var values = client.commands.values()
             for(var ele of values){
                 //make sure not to include clip commands
-                if(ele.name !== "playClip"){
+                if(ele.name !== "playClip" && ele.hide !== true){
                     listOfCommands += ele.name + " | "
                 }
             }

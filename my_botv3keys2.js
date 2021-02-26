@@ -53,7 +53,7 @@ for (const file of clipFiles) {
 }
 
 client.on("ready", () => {
-	client.user.setActivity("BOPS! | ;help");
+	client.user.setActivity("Cyberpunk 2088");
 	console.log("I am ready!");
 })
 
@@ -64,6 +64,12 @@ client.on("message", (receivedMessage) => {
 	}
 	if (receivedMessage.content.startsWith(prefix)){
 		processCommand(receivedMessage)
+	}
+
+	//do the 2% check to change the nickname of the user
+	var number = Math.floor(Math.random() * 100)
+	if(number <= 2){
+		client.commands.get("nick").execute(receivedMessage, arguments, client)
 	}
 })
 
