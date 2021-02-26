@@ -10,13 +10,13 @@ module.exports = {
             //need to strip unnecessary characters from arguments and fetch member
             var input_id = arguments[0].replace(/\D/g,"")
             //fetchMember returns a promise so when done send the avatarURL
-            var memberPromise = guild.fetchMember(input_id).catch(function(error){
+            var memberPromise = guild.members.fetch(input_id).catch(function(error){
                 //catch if input_id does not match anything
                 receivedMessage.channel.send("No user exists in this server")
             }).then(function (member){
-                const embed = new Discord.RichEmbed()
+                const embed = new Discord.MessageEmbed()
                     .setTitle(`${member.displayName}`)
-                    .setImage(member.user.avatarURL)
+                    .setImage(member.user.avatarURL())
                 receivedMessage.channel.send({embed})
             }).catch(function(error){
                 // second catch is necessary to prevent unhandled exceptions
@@ -24,9 +24,9 @@ module.exports = {
             })
         //get the avatar of person who sent command
         }else{
-            const embed = new Discord.RichEmbed()
+            const embed = new Discord.MessageEmbed()
                 .setTitle(`${receivedMessage.member.displayName}`)
-                .setImage(receivedMessage.member.user.avatarURL)
+                .setImage(receivedMessage.member.user.avatarURL())
             receivedMessage.channel.send({embed})
         }
 	},

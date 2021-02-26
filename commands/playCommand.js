@@ -10,8 +10,9 @@ module.exports = {
             receivedMessage.channel.send("Please provide a link or some search terms")
             return
         }
-        if(!receivedMessage.member.voiceChannel){
+        if(!receivedMessage.member.voice.channel){
             receivedMessage.channel.send("You must be in a voice channel")
+            console.log("This is the voice channel that did not exist " + receivedMessage.member.voice.channel)
             return
         }
         //check if link is good
@@ -38,12 +39,12 @@ module.exports = {
             var videoId = arguments[0].split("?v=")[1]
             songQueueIds[videoId] = arguments[0]
             //if a song is currently playing display the queue
-            broadcast = client.variables.get("broadcast" + receivedMessage.guild.id)
-            if(broadcast)client.commands.get("queue").execute(receivedMessage, arguments, client)
+            dispatcher = client.variables.get("dispatcher" + receivedMessage.guild.id)
+            if(dispatcher)client.commands.get("queue").execute(receivedMessage, arguments, client)
                 
-            if(!receivedMessage.guild.voiceConnection) receivedMessage.member.voiceChannel.join().then(function(connection){
-                console.log("accessing play helper")
-                helpers.get("play").execute(connection, receivedMessage, client)
+            if(client.voice.connections.filter(connection => connection.channel.id === receivedMessage.member.voice.channel.id).array().length === 0) receivedMessage.member.voice.channel.join().then(function(connection){
+                console.log("accessing play helper");
+                helpers.get("play").execute(connection, receivedMessage, client);
             })
             .catch(console.error)
         }else if(arguments[0] !== undefined){

@@ -3,7 +3,7 @@ module.exports = {
 	description: 'Lists the top 5 biggest losers',
 	execute(receivedMessage, arguments, client) {
         //grab a list of members in the discord server
-        var members = receivedMessage.guild.members.array();
+        var members = receivedMessage.guild.members.cache.array();
         
         //initialize json
         var leaders = {};

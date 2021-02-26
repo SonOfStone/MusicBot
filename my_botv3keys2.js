@@ -2,7 +2,7 @@
 //timer to see song progress
 //add games
 //add afk handler
-//perfect back command-write broadcast.destroy() in a handler
+//perfect back command-write dispatcher.end() in a handler
 //handle queue async requests better
 
 //initialize bot
@@ -16,7 +16,7 @@ client.commands = new Discord.Collection();
 client.variables = new Discord.Collection();
 client.helpers = new Discord.Collection();
 
-const { Client_ID, Client_secret, Api_key, discord_bot_token, prefix, rouletteChannel, giphy_key } = require('./keys2.json');
+const { Client_ID, Client_secret, Api_key, discord_bot_token, prefix, rouletteChannel, giphy_key, pandora_user, pandora_pass } = require('./keys2.json');
 const scores = require("./src/scores.json")
 
 client.variables.set("Client_ID", Client_ID)
@@ -26,6 +26,8 @@ client.variables.set("discord_bot_token", discord_bot_token)
 client.variables.set("prefix", prefix)
 client.variables.set("rouletteChannel", rouletteChannel)
 client.variables.set("giphy_key", giphy_key)
+client.variables.set("pandora_user", pandora_user)
+client.variables.set("pandora_pass", pandora_pass)
 client.variables.set("scores", scores)
 
 const commandFiles = fs.readdirSync("./commands").filter(file => file.endsWith(".js"));
@@ -51,7 +53,7 @@ for (const file of clipFiles) {
 }
 
 client.on("ready", () => {
-	client.user.setActivity("BOPS! | ;help");
+	client.user.setActivity("Cyberpunk 2088");
 	console.log("I am ready!");
 })
 
@@ -62,6 +64,12 @@ client.on("message", (receivedMessage) => {
 	}
 	if (receivedMessage.content.startsWith(prefix)){
 		processCommand(receivedMessage)
+	}
+
+	//do the 2% check to change the nickname of the user
+	var number = Math.floor(Math.random() * 100)
+	if(number <= 2){
+		client.commands.get("nick").execute(receivedMessage, arguments, client)
 	}
 })
 

@@ -11,14 +11,14 @@ module.exports = {
         }
         
         if (now - lastCommandUsage > 5 * 1000) {
-            const voiceChannel = receivedMessage.member.voiceChannel
+            const voiceChannel = receivedMessage.member.voice.channel
             if(voiceChannel !== undefined){
                 var members = voiceChannel.members
                 var randomMember = members.random()
                 //increment the member's score
                 client.helpers.get("incrementScore").execute(randomMember, client)
                 //grab the afk channel from the variables and move the user to that channel
-                randomMember.setVoiceChannel(client.variables.get("rouletteChannel"))
+                randomMember.voice.setChannel(client.variables.get("rouletteChannel"))
                     .then(() => console.log(`Moved ${randomMember.displayName}`))
                     .catch(console.error);
                 var personal_score = client.helpers.get("getScore").execute(randomMember, client)
@@ -27,7 +27,7 @@ module.exports = {
                 client.variables.set("lastRouletteUsage" + receivedMessage.guild.id, lastCommandUsage)
                 //attempt to return user to original channel asynchronously
                 setTimeout(function(){  
-                    randomMember.setVoiceChannel(voiceChannel)
+                    randomMember.voice.setChannel(voiceChannel)
                         .then(() => console.log(`Moved ${randomMember.displayName}`))
                         .catch(console.error);
                 }, 10000)

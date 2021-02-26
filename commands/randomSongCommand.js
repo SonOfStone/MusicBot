@@ -5,7 +5,7 @@ module.exports = {
         variables = client.variables
         helpers = client.helpers
         
-        if(!receivedMessage.member.voiceChannel){
+        if(!receivedMessage.member.voice.channel){
             receivedMessage.channel.send("You must be in a voice channel")
             return
         }

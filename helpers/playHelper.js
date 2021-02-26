@@ -17,11 +17,8 @@ async function execute(connection, receivedMessage, client) {
     
     const streamOptions = { seek: 0, volume: false, quality: "highestaudio", bitrate: 1000}
     const stream = ytdl(songQueue[0], {filter: "audio", highWaterMark: 1<<25})
-    broadcast = client.createVoiceBroadcast()
-    
-    variables.set("broadcast" + receivedMessage.guild.id, broadcast)
-    broadcast.playStream(stream, streamOptions)
-    const dispatcher = connection.playBroadcast(broadcast)
+
+    const dispatcher = connection.play(stream, streamOptions)
     variables.set("dispatcher" + receivedMessage.guild.id, dispatcher)
     
     if(variables.has("lastSongs" + receivedMessage.guild.id)){
@@ -51,22 +48,24 @@ async function execute(connection, receivedMessage, client) {
             //trying to find next song
             console.log("finding next song");
             client.helpers.get("getRelatedVideo").execute(lastSong, receivedMessage, client);
+        //check if autoplay is set to random
         }else if(autoPlayFlag == "random"){
             //call randomsong
             console.log("finding a random song");
             client.commands.get("randomsong").execute(receivedMessage, [], client);
+        //check if autoplay is set to pandora
+        }else if(autoPlayFlag == "pandora"){
+            //call the pandora command
+            console.log("get a song from pandora");
+            client.commands.get("pandora").execute(receivedMessage, [], client);
         }
     }
-    broadcast.on("end", () =>{
-        //this marks the end of a song
-        broadcast.destroy()
-    })
     //testing purposes
-    broadcast.on("warn", () =>{
-        console.log("warning in broadcast")
+    dispatcher.on("warn", () =>{
+        console.log("warning in dispatcher")
     })
-    broadcast.on("error", async(error) =>{
-        console.log("Broadcast received an error")
+    dispatcher.on("error", async(error) =>{
+        console.log("Dispatcher received an error")
         if(error.toString() == "Error: Status code: 403"){
             console.log("this is in a 403 conditional")
             //var sleep = require('sleep');
@@ -76,7 +75,8 @@ async function execute(connection, receivedMessage, client) {
         }
         console.log(error)
     })
-    dispatcher.on("end", () =>{
+    dispatcher.on("finish", () =>{
+        console.log("Dispatcher has ended")
         //this marks the end of all the songs
         songQueue = variables.get("songQueue" + receivedMessage.guild.id)
         if(songQueue[0]){
@@ -84,8 +84,6 @@ async function execute(connection, receivedMessage, client) {
         }else{
             lastSongs = []
             variables.set("lastSongs" + receivedMessage.guild.id, lastSongs)
-            //delete the broadcast variable when dispatcher finally ends
-            variables.delete("broadcast" + receivedMessage.guild.id)
             variables.delete("dispatcher" + receivedMessage.guild.id)
             connection.disconnect();
         }
