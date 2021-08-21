@@ -16,7 +16,11 @@ async function execute(connection, receivedMessage, client) {
     const ytdl = require('ytdl-core')
     
     const streamOptions = { seek: 0, volume: false, quality: "highestaudio", bitrate: 1000}
-    const stream = ytdl(songQueue[0], {filter: "audio", highWaterMark: 1<<25})
+    const stream = ytdl(songQueue[0], {filter: "audio", highWaterMark: 1<<25, requestOptions: {
+        headers: {
+            cookie: variables.get("youtubeCookie")
+        }
+    }})
 
     const dispatcher = connection.play(stream, streamOptions)
     variables.set("dispatcher" + receivedMessage.guild.id, dispatcher)

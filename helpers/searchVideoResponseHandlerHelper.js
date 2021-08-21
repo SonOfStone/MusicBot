@@ -8,10 +8,15 @@ module.exports = {
         
         var json = JSON.parse(response);
         
-        //change 0 when we expand later on in development
-        var nextVideoId = json["items"][0]["id"]["videoId"]
+        //if there is a result
+        if(json["items"][0] !== undefined){
+            var nextVideoId = json["items"][0]["id"]["videoId"]
 
-        var nextUrl = "https://www.youtube.com/watch?v=" + nextVideoId
-        client.commands.get("play").execute(receivedMessage, [nextUrl], client)
+            var nextUrl = "https://www.youtube.com/watch?v=" + nextVideoId
+            client.commands.get("play").execute(receivedMessage, [nextUrl], client)
+        //else there are no results
+        }else{
+            receivedMessage.channel.send("There are no results found.")
+        }
 	},
 };
