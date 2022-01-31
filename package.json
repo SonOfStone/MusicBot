@@ -10,6 +10,6 @@
     "selenium-webdriver": "^4.0.0-alpha.7",
     "xmlhttprequest": "^1.8.0",
     "yarn": "^1.22.10",
-    "ytdl-core": "^4.9.1"
+    "ytdl-core": "github:fent/node-ytdl-core#pull/1022/head"
   }
 }
