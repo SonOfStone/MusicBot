@@ -12,7 +12,7 @@ module.exports = {
                 .setTitle(res.body[0].data.children[0].data.title)
                 .setURL("https://reddit.com/" + res.body[0].data.children[0].data.permalink)
                 .setImage(res.body[0].data.children[0].data.url)
-            receivedMessage.channel.send(newEmbed)
+                receivedMessage.channel.send({embeds: [newEmbed]})
 
         });
 	},

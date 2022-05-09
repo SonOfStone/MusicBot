@@ -8,15 +8,16 @@
 //initialize bot
 const fs = require("fs")
 const Discord = require("discord.js")
+const { Client, Collection, Intents } = require('discord.js');
 
-const client = new Discord.Client()
+const client = new Client({ intents: ["GUILDS", "GUILD_VOICE_STATES" , "GUILD_MESSAGES" , "GUILD_MESSAGE_REACTIONS" , "DIRECT_MESSAGE_REACTIONS" ] , partials: ["MESSAGE" , "CHANNEL" , "REACTION"]  });
 
 //create collection of commands and variables
-client.commands = new Discord.Collection();
-client.variables = new Discord.Collection();
-client.helpers = new Discord.Collection();
+client.commands = new Collection();
+client.variables = new Collection();
+client.helpers = new Collection();
 
-const { Client_ID, Client_secret, Api_key, discord_bot_token, prefix, rouletteChannel, giphy_key, pandora_user, pandora_pass, youtubeCookie } = require('./keys.json');
+const { Client_ID, Client_secret, Api_key, discord_bot_token, prefix, rouletteChannel, giphy_key, pandora_user, pandora_pass, youtubeIdentityToken, youtubeCookie } = require('./keys.json');
 const scores = require("./src/scores.json")
 
 client.variables.set("Client_ID", Client_ID)
@@ -28,6 +29,7 @@ client.variables.set("rouletteChannel", rouletteChannel)
 client.variables.set("giphy_key", giphy_key)
 client.variables.set("pandora_user", pandora_user)
 client.variables.set("pandora_pass", pandora_pass)
+client.variables.set("youtubeIdentityToken", youtubeIdentityToken)
 client.variables.set("youtubeCookie", youtubeCookie)
 client.variables.set("scores", scores)
 
@@ -53,12 +55,12 @@ for (const file of clipFiles) {
     client.commands.set(fileName, client.helpers.get("playClip"))
 }
 
-client.on("ready", () => {
+client.once("ready", () => {
 	client.user.setActivity("BOPS! | ;help");
 	console.log("I am ready!");
 })
 
-client.on("message", (receivedMessage) => {
+client.on("messageCreate", receivedMessage => {
 	if (receivedMessage.author == client.user){
 		// prevent bot from responding to itself
 		return

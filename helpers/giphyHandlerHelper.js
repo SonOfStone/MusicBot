@@ -12,6 +12,6 @@ module.exports = {
         //create embed for image
         const embed = new Discord.MessageEmbed()
             .setImage(giphyImage);
-        receivedMessage.channel.send(embed);
+            receivedMessage.channel.send({embeds: [embed]})
 	},
 };

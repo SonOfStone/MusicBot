@@ -1,29 +1,37 @@
 module.exports = {
 	name: 'play',
 	description: 'Plays a linked song',
-    execute: async function (connection, receivedMessage, client) {
-        execute(connection, receivedMessage, client)
+    execute: async function (receivedMessage, client) {
+        execute(receivedMessage, client)
     }
 };
 
-async function execute(connection, receivedMessage, client) {
+async function execute(receivedMessage, client) {
     //simplifying calls
     variables = client.variables
     helpers = client.helpers
+    commands = client.commands
     
     //define songQueue
     songQueue = variables.get("songQueue" + receivedMessage.guild.id)
     const ytdl = require('ytdl-core')
+    const { createAudioPlayer, createAudioResource } = require('@discordjs/voice');
+    const { createReadStream } = require('node:fs');
     
-    const streamOptions = { seek: 0, volume: false, quality: "highestaudio", bitrate: 1000}
     const stream = ytdl(songQueue[0], {filter: "audio", highWaterMark: 1<<25, requestOptions: {
         headers: {
-            cookie: variables.get("youtubeCookie")
+            cookie: variables.get("youtubeCookie"),
+            'x-youtube-identity-token': variables.get("youtubeIdentityToken")
         }
     }})
 
-    const dispatcher = connection.play(stream, streamOptions)
-    variables.set("dispatcher" + receivedMessage.guild.id, dispatcher)
+    helpers.get("player").execute(receivedMessage, client)
+    let resource = createAudioResource(stream, {
+        inlineVolume : true
+    });
+
+    const player = variables.get("player" + receivedMessage.guild.id)
+    player.play(resource);
     
     if(variables.has("lastSongs" + receivedMessage.guild.id)){
         lastSongs = variables.get("lastSongs" + receivedMessage.guild.id)
@@ -65,31 +73,30 @@ async function execute(connection, receivedMessage, client) {
         }
     }
     //testing purposes
-    dispatcher.on("warn", () =>{
-        console.log("warning in dispatcher")
+    player.on("warn", () =>{
+        console.log("warning in player")
     })
-    dispatcher.on("error", async(error) =>{
-        console.log("Dispatcher received an error")
+    player.on("error", async(error) =>{
+        console.log("Player received an error")
         if(error.toString() == "Error: Status code: 403"){
             console.log("this is in a 403 conditional")
             //var sleep = require('sleep');
             await sleep(1000)
             songQueue.unshift(lastSong)
-            helpers.get("play").execute(connection, receivedMessage, client)
+            helpers.get("play").execute(receivedMessage, client)
         }
         console.log(error)
     })
-    dispatcher.on("finish", () =>{
-        console.log("Dispatcher has ended")
+    player.on("idle", () =>{
+        console.log("Player has ended")
         //this marks the end of all the songs
         songQueue = variables.get("songQueue" + receivedMessage.guild.id)
         if(songQueue[0]){
-            helpers.get("play").execute(connection, receivedMessage, client)
+            helpers.get("play").execute(receivedMessage, client)
         }else{
             lastSongs = []
             variables.set("lastSongs" + receivedMessage.guild.id, lastSongs)
-            variables.delete("dispatcher" + receivedMessage.guild.id)
-            connection.disconnect();
+            commands.get("stop").execute(receivedMessage, [], client)
         }
     })
 }

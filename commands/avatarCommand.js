@@ -17,8 +17,8 @@ module.exports = {
                 const embed = new Discord.MessageEmbed()
                     .setTitle(`${member.displayName}`)
                     .setImage(member.user.avatarURL())
-                receivedMessage.channel.send({embed})
-            }).catch(function(error){
+                    receivedMessage.channel.send({embeds: [embed]})
+                }).catch(function(error){
                 // second catch is necessary to prevent unhandled exceptions
                 console.log("User input wrong ID")
             })
@@ -27,7 +27,7 @@ module.exports = {
             const embed = new Discord.MessageEmbed()
                 .setTitle(`${receivedMessage.member.displayName}`)
                 .setImage(receivedMessage.member.user.avatarURL())
-            receivedMessage.channel.send({embed})
-        }
+                receivedMessage.channel.send({embeds: [embed]})
+            }
 	},
 };

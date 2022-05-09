@@ -27,13 +27,12 @@ module.exports = {
             description = description.substr(0,charLimit)+"..."
             //I did not want description at this time so empty string
             description = ""
-            
             if(outputStartText==null) var outputStartText = "Playing "
             var outputStr = outputStartText + title + "   " + duration + "\n" + description
             const embed = new Discord.MessageEmbed()
                 .setColor(0xFF0000)
                 .setDescription(outputStr)
-            receivedMessage.channel.send(embed)
+            receivedMessage.channel.send({embeds: [embed]})
         //the api did not return any info so send the user a message
         }else{
             if(outputStartText==null) var outputStartText = "Playing "
@@ -41,7 +40,7 @@ module.exports = {
             const embed = new Discord.MessageEmbed()
                 .setColor(0xFF0000)
                 .setDescription(outputStr)
-            receivedMessage.channel.send(embed)
+            receivedMessage.channel.send({embeds: [embed]})
         }
 	},
 };
