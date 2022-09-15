@@ -7,6 +7,7 @@ module.exports = {
         songQueueIds = variables.get("songQueueIds" + receivedMessage.guild.id)
         
         var json = JSON.parse(response);
+        console.log("made it to searchResponseHandler")
         
         //if there is a result
         if(json["items"][0] !== undefined){

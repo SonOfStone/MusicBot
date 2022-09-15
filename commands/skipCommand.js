@@ -2,7 +2,7 @@ module.exports = {
 	name: 'skip',
 	description: 'Skips the current song',
 	execute(receivedMessage, arguments, client) {
-        dispatcher = client.variables.get("dispatcher" + receivedMessage.guild.id)
-        if(dispatcher)dispatcher.end()
+        player = client.variables.get("player" + receivedMessage.guild.id)
+        if(player)player.stop()
 	},
 };

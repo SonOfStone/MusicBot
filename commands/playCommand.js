@@ -6,6 +6,12 @@ module.exports = {
         variables = client.variables
         helpers = client.helpers
         console.log(arguments)
+
+        const { joinVoiceChannel, AudioPlayer } = require('@discordjs/voice');
+        const { createAudioPlayer, createAudioResource } = require('@discordjs/voice');
+        const { createReadStream } = require('node:fs');
+
+
         if(arguments.length < 1){
             receivedMessage.channel.send("Please provide a link or some search terms")
             return
@@ -39,15 +45,16 @@ module.exports = {
             var videoId = arguments[0].split("?v=")[1]
             songQueueIds[videoId] = arguments[0]
             //if a song is currently playing display the queue
-            dispatcher = client.variables.get("dispatcher" + receivedMessage.guild.id)
-            if(dispatcher)client.commands.get("queue").execute(receivedMessage, arguments, client)
-                
-            if(client.voice.connections.filter(connection => connection.channel.id === receivedMessage.member.voice.channel.id).array().length === 0) receivedMessage.member.voice.channel.join().then(function(connection){
-                console.log("accessing play helper");
-                helpers.get("play").execute(connection, receivedMessage, client);
-            })
-            .catch(console.error)
+            player = client.variables.get("player" + receivedMessage.guild.id)
+            //player is defined if the bot is connected
+            if(player){
+                client.commands.get("queue").execute(receivedMessage, arguments, client)
+            //nothing is currently playing
+            }else{
+                helpers.get("play").execute(receivedMessage, client);
+            }
         }else if(arguments[0] !== undefined){
+            console.log("calling youtube api")
             var apiUrl = "https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&q=" + arguments.join() + "&type=video&key=" + client.variables.get("Api_key")
             var apiCallResponse = helpers.get("httpGetAsync").execute(apiUrl, helpers.get("searchVideoResponseHandler"), receivedMessage, client)
         }else{

@@ -18,14 +18,15 @@ module.exports = {
         
         var nextVideoId = ""
         var notFound = true
-        var counter = 0
+        var counter = 0;
         //find an id in the response not in songQueueIds
         while(notFound && counter < 4){
             var nextVideoId = json["items"][counter]["id"]["videoId"]
+            var nextVideoSnippet = json["items"][counter]["snippet"]
             console.log(nextVideoId)
             console.log(songQueueIds)
-            //if not in map found new video
-            if(songQueueIds[nextVideoId] === undefined){
+            //if not in map we found a new video
+            if(songQueueIds[nextVideoId] === undefined && nextVideoSnippet !== undefined){
                 console.log("found empty element\n\n")
                 notFound = false
             }else{

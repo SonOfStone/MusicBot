@@ -3,15 +3,19 @@ module.exports = {
 	description: 'Lists the top 5 biggest losers',
 	execute(receivedMessage, arguments, client) {
         //grab a list of members in the discord server
-        var members = receivedMessage.guild.members.cache.array();
-        
+        var members = receivedMessage.guild.members.cache.values();
+
+        const memberIterator = members[Symbol.iterator]();
+
         //initialize json
         var leaders = {};
 
         //get scores for all members
-        for(var member in members){
-            var personal_score = client.helpers.get("getScore").execute(members[member], client);
-            leaders[personal_score] = members[member]
+        for(const member of members){
+            console.log(member)
+            console.log(member.user.id)
+            var personal_score = client.helpers.get("getScore").execute(member, client);
+            leaders[personal_score] = member
         }
                 
         //use the scores as keys and grab the last 5
