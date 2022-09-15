@@ -18,7 +18,7 @@ async function execute(receivedMessage, client) {
     const { createAudioPlayer, createAudioResource } = require('@discordjs/voice');
     const { createReadStream } = require('node:fs');
     
-    const stream = ytdl(songQueue[0], {filter: "audio", highWaterMark: 1<<25, requestOptions: {
+    const stream = ytdl(songQueue[0], {filter: "audio", highWaterMark: 1<<62, liveBuffer: 1<<62, dlChunkSize: 0, bitrate: 128, requestOptions: {
         headers: {
             cookie: variables.get("youtubeCookie"),
             'x-youtube-identity-token': variables.get("youtubeIdentityToken")

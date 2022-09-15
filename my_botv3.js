@@ -8,9 +8,8 @@
 //initialize bot
 const fs = require("fs")
 const Discord = require("discord.js")
-const { Client, Collection, Intents } = require('discord.js');
-
-const client = new Client({ intents: ["GUILDS", "GUILD_VOICE_STATES" , "GUILD_MESSAGES" , "GUILD_MESSAGE_REACTIONS" , "DIRECT_MESSAGE_REACTIONS" ] , partials: ["MESSAGE" , "CHANNEL" , "REACTION"]  });
+const { Client, Collection, GatewayIntentBits, Partials} = require('discord.js');
+const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMessageReactions, GatewayIntentBits.DirectMessageReactions], partials: [Partials.Message , Partials.Channel , Partials.Reaction] });
 
 //create collection of commands and variables
 client.commands = new Collection();
