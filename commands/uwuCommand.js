@@ -43,6 +43,8 @@ module.exports = {
         .then(msg => console.log(`Deleted message from ${msg.author.username}`))
         .catch(console.error);
 
-        receivedMessage.channel.send(outputstr)
+        if(outputstr != ""){
+            receivedMessage.channel.send(outputstr)
+        }
 	},
 };

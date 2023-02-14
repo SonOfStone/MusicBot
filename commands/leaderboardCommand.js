@@ -12,8 +12,6 @@ module.exports = {
 
         //get scores for all members
         for(const member of members){
-            console.log(member)
-            console.log(member.user.id)
             var personal_score = client.helpers.get("getScore").execute(member, client);
             leaders[personal_score] = member
         }
