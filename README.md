@@ -24,14 +24,12 @@ Several node packages:
 
 - discord.js
 - node-opus or opusscript
-- ytdl-core
+- @distube/ytdl-core
 - xmlhttprequest
 
 ```
-npm install discord.js node-opus
-or
-npm install discord.js opusscript
-npm install ytdl-core
+npm install @distube/ytdl-core
+npm install @discordjs/opus
 npm install xmlhttprequest
 npm install request-promise
 npm install request
