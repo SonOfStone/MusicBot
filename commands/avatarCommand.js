@@ -2,7 +2,7 @@ module.exports = {
 	name: 'avatar',
 	description: 'Return the avatar picture of discord user',
 	execute(receivedMessage, arguments, client) {
-        const { Discord, EmbedBuilder } = require('discord.js')
+        const { EmbedBuilder } = require('discord.js')
         //if a name is tagged get avatar for that name
         if(arguments[0] !== undefined){
             //get the guild object

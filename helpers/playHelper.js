@@ -14,16 +14,12 @@ async function execute(receivedMessage, client) {
     
     //define songQueue
     songQueue = variables.get("songQueue" + receivedMessage.guild.id)
-    const ytdl = require('ytdl-core')
+    const ytdl = require('@distube/ytdl-core')
+    const agent = ytdl.createAgent(client.variables.get("youtubeCookie"));
     const { createAudioPlayer, createAudioResource } = require('@discordjs/voice');
     const { createReadStream } = require('node:fs');
     
-    const stream = ytdl(songQueue[0], {filter: "audio", highWaterMark: 1<<62, liveBuffer: 1<<62, dlChunkSize: 0, bitrate: 128, requestOptions: {
-        headers: {
-            cookie: variables.get("youtubeCookie"),
-            'x-youtube-identity-token': variables.get("youtubeIdentityToken")
-        }
-    }})
+    const stream = ytdl(songQueue[0], {agent, filter: "audio", highWaterMark: 1<<62, liveBuffer: 1<<62, dlChunkSize: 0, bitrate: 128})
 
     helpers.get("player").execute(receivedMessage, client)
     let resource = createAudioResource(stream, {

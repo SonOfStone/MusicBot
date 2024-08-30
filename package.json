@@ -1,18 +1,17 @@
 {
   "dependencies": {
-    "@discordjs/opus": "github:discordjs/opus",
+    "@discordjs/opus": "^0.9.0",
     "@discordjs/voice": "^0.15.0",
+    "@distube/ytdl-core": "^4.14.4",
     "cheerio": "^1.0.0-rc.10",
-    "discord.js": "^14.8.0",
+    "discord.js": "^14.15.3",
     "libsodium-wrappers": "^0.7.10",
-    "node-opus": "^0.3.3",
     "nodemon": "^2.0.16",
     "prism-media": "github:hydrabolt/prism-media",
     "request": "^2.88.2",
-    "request-promise": "^4.2.6",
+    "request-promise": "^0.0.1",
     "selenium-webdriver": "^4.0.0-alpha.7",
     "xmlhttprequest": "^1.8.0",
-    "yarn": "^1.22.10",
-    "ytdl-core": "github:fent/node-ytdl-core#pull/1187/head"
+    "yarn": "^1.22.10"
   }
 }
